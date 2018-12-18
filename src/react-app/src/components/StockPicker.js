@@ -35,7 +35,6 @@ class StockPicker extends Component {
     };
 
     render() {
-
         return (
             <AutoComplete
                 placeholder="Select multiple stocks"
