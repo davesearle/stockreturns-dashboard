@@ -12,10 +12,13 @@ import MenuItem from '@material-ui/core/MenuItem';
 import CancelIcon from '@material-ui/icons/Cancel';
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
 
-const styles = theme => ({
+const styles = (theme) => ({
+    root: {
+        width: '100%'
+    },
     input: {
         display: 'flex',
-        padding: 0,
+        padding: 0
     },
     valueContainer: {
         display: 'flex',
@@ -23,9 +26,13 @@ const styles = theme => ({
         flex: 1,
         alignItems: 'center',
         overflow: 'hidden',
+        padding: 10,
+        minHeight: 38
     },
     chip: {
         margin: `${theme.spacing.unit / 2}px ${theme.spacing.unit / 4}px`,
+        height: 30,
+        fontSize: 14
     },
     chipFocused: {
         backgroundColor: emphasize(
@@ -37,9 +44,8 @@ const styles = theme => ({
         padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
     },
     placeholder: {
-        position: 'absolute',
         left: 2,
-        fontSize: 16,
+        fontSize: 16
     },
     paper: {
         position: 'absolute',
@@ -73,8 +79,10 @@ function Control(props) {
     return (
         <TextField
             fullWidth
+            variant="outlined"
             InputProps={{
                 inputComponent,
+
                 inputProps: {
                     className: props.selectProps.classes.input,
                     inputRef: props.innerRef,
@@ -152,6 +160,27 @@ const components = {
 };
 
 class AutoComplete extends Component {
+
+    state = {
+        multi: null,
+    };
+
+    componentDidUpdate(prevProps) {
+        if (this.props.value !== prevProps.value) {
+            this.setState({
+                multi: this.props.value,
+            });
+        }
+    }
+
+    handleChange = value => {
+        this.setState({
+            multi: value,
+        });
+
+        this.props.onChange(value);
+    };
+
     render() {
         const { classes, theme, placeholder } = this.props;
 
@@ -160,8 +189,8 @@ class AutoComplete extends Component {
                 ...base,
                 color: theme.palette.text.primary,
                 '& input': {
-                    font: 'inherit',
-                },
+                    font: 'inherit'
+                }
             }),
         };
 
@@ -169,20 +198,22 @@ class AutoComplete extends Component {
             <div className={classes.root}>
                 <NoSsr>
                     <AsyncSelect
+                        ref={this.componentRef}
                         classes={classes}
                         styles={selectStyles}
+                        defaultOptions
+                        loadOptions={this.props.loadOptions}
+                        components={components}
+                        onChange={this.handleChange}
                         textFieldProps={{
-                            label: 'Label',
+                            label: this.props.label,
                             InputLabelProps: {
                                 shrink: true,
                             },
                         }}
-                        defaultOptions
-                        loadOptions={this.props.suggestions}
-                        components={components}
-                        onChange={this.props.onChange}
                         placeholder={placeholder}
                         isMulti
+                        value={this.state.multi}
                     />
                 </NoSsr>
             </div>
@@ -197,4 +228,4 @@ AutoComplete.propTypes = {
     suggestions: PropTypes.func.isRequired
 };
 
-export default withStyles(styles, { withTheme: true })(AutoComplete);;
+export default withStyles(styles, { withTheme: true })(AutoComplete);
