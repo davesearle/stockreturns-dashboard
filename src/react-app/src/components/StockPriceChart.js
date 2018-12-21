@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import { withStyles } from '@material-ui/core/styles';
 
-const getOptions = () => {
+const getChartOptions = () => {
     return {
         title: {
             text: ''
@@ -66,55 +66,65 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
+    onLoading: () => {
+        dispatch({ type: 'FETCHING_START' })
+    },
+    onLoaded: () => {
+        dispatch({ type: 'FETCHING_END' })
+    }
 })
+
+const getData = (symbol) => {
+    return new Promise((resolve, reject) => {
+        axios.get('http://localhost:5000/prices/' + symbol)
+            .then(response => {
+                var prices = response.data.map(item => [item.date, item.close]);
+                resolve(prices);
+            })
+            .catch(error => { 
+                console.log(error); 
+                reject(error);
+            })
+    })
+}
 
 class StockPriceChart extends Component {
 
-    getData = (symbol, callback) => {
-        axios.get('http://localhost:5000/prices/' + symbol)
-            .then(response => {
-
-                var prices = Array.from(response.data.map(item => [item.Date, item.Close]));
-                callback(prices);
-            })
-            .catch(error => { console.log(error); })
-            .then(() => { });
-    }
-
-    findSeriesIndex(symbol) {
-        let chart = this.refs.chart.getChart();
-        let seriesLength = chart.series.length;
-
-        for (var i = 0; i < seriesLength; i++) {
-            if (chart.series[i].name === symbol)
-                return i;
-        }
-        return -1;
-    }
-
     componentDidMount() {
         this.props.symbols.forEach((symbol) => {
-            this.getData(symbol, (prices) => {
+
+            this.props.onLoading();
+
+            getData(symbol).then((prices) => {
                 let newSeries = { name: symbol, data: prices }
                 this.setState(prevState => ({
                     series: [...prevState ? prevState.series : [], newSeries]
                 }))
+            }).catch(() => {
+
+            }).then(() => {
+                this.props.onLoaded();
             });
         });
     }
 
     componentDidUpdate(prevProps) {
-
         if (this.props.symbols !== prevProps.symbols) {
 
             // for new symbols, get the price data and add to the component's state
             this.props.symbols.forEach((symbol) => {
                 if (prevProps.symbols.indexOf(symbol) === -1) {
-                    this.getData(symbol, (prices) => {
-                        let newSeries = { name: symbol, data: prices }
+
+                    this.props.onLoading();
+
+                    getData(symbol).then((prices) => {
                         this.setState(prevState => ({
-                            series: [...prevState.series, newSeries]
-                        }))
+                            series: [...prevState.series, { name: symbol, data: prices }]
+                        }));
+                    }).catch(() => {
+
+                    }).then(() => {
+                        this.props.onLoaded();
                     });
                 }
             });
@@ -129,29 +139,30 @@ class StockPriceChart extends Component {
             });
         }
 
-        this.renderSeries(this.state.series);
+        this.renderSeries();
     }
 
-    renderSeries(series) {
+    renderSeries() {
 
         let chart = this.refs.chart.getChart();
-        let symbols = Array.from(series.map((item) => item.name));
+        let stateSymbols = this.state.series.map((item) => item.name);
+        let chartSymbols = chart.series.map((item) => item.name);
 
         // for each series in the state, make sure it's been added to the chart
-        series.forEach(item => {
-            if (this.findSeriesIndex(item.name) === -1)
+        this.state.series.forEach(item => {
+            if (chartSymbols.indexOf(item.name) === -1)
                 chart.addSeries(item)
         })
 
         // remove series from the chart that arent in the state
         chart.series.forEach(item => {
-            if (symbols.indexOf(item.name) === -1)
+            if (stateSymbols.indexOf(item.name) === -1)
                 item.remove();
         })
     }
 
     render() {
-        const options = getOptions();
+        const options = getChartOptions();
         const { classes } = this.props;
         
         return (

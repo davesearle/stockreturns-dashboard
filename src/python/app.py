@@ -13,21 +13,20 @@ with open("quandl-key.txt") as f:
 
 @app.route('/prices/<symbol>', methods=['GET', 'OPTIONS'])
 def prices(symbol):
-
     start = datetime.datetime(2018,1,1)
     end = datetime.date.today()
 
-    data = quandl.get("WIKI/" + symbol, start_date=start, end_date=end)
- 
-    return data.reset_index().to_json(orient='records')
+    df = quandl.get("WIKI/" + symbol, start_date=start, end_date=end)
+    df.index.names = ['date']
+    df.rename(columns={"Adj. Close": "close"}, inplace=True)
+    df = df["close"]
+    
+    return df.reset_index().to_json(orient='records')
 
 @app.route('/tickers/search/', methods=['GET', 'OPTIONS'])
 @app.route('/tickers/search/<search>', methods=['GET', 'OPTIONS'])
 def search_tickers(search = None):
-
-    # nasdaq, nyse, amex
-    # from http://www.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=nasdaq&render=download
-    stocks = "EOD_metadata.csv"
+    stocks = "quandl-tickers.csv"
     df = pd.read_csv(stocks, sep=',', header=0)
 
     if(search != None):
@@ -37,10 +36,7 @@ def search_tickers(search = None):
 
 @app.route('/tickers/<ticker>', methods=['GET', 'OPTIONS'])
 def get_ticker(ticker):
-
-    # nasdaq, nyse, amex
-    # from http://www.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=nasdaq&render=download
-    stocks = "EOD_metadata.csv"
+    stocks = "quandl-tickers.csv"
     df = pd.read_csv(stocks, sep=',', header=0)
     df = df.loc[df['code'] == ticker]
 

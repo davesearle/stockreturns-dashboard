@@ -27,6 +27,7 @@ const getTicker = (symbol) => {
     return new Promise((resolve, reject) => {
          axios.get('http://localhost:5000/tickers/' + symbol)
         .then(response => {
+            
             var ticker = response.data.map(ticker => ({
                 value: ticker.code,
                 label: ticker.name
