@@ -23,6 +23,21 @@ def prices(symbol):
     
     return df.reset_index().to_json(orient='records')
 
+@app.route('/returns/<symbol>', methods=['GET', 'OPTIONS'])
+def returns(symbol):
+    start = datetime.datetime(2018,1,1)
+    end = datetime.date.today()
+
+    df = quandl.get("WIKI/" + symbol, start_date=start, end_date=end)
+    df.index.names = ['date']
+    df.rename(columns={"Adj. Close": "close"}, inplace=True)
+
+    close_prices = pd.DataFrame({"return": df["close"]})
+    stock_returns = close_prices.apply(lambda x: x / x[0]) - 1
+    stock_returns = (stock_returns * 100).round(2)
+
+    return stock_returns.reset_index().to_json(orient='records')
+
 @app.route('/tickers/search/', methods=['GET', 'OPTIONS'])
 @app.route('/tickers/search/<search>', methods=['GET', 'OPTIONS'])
 def search_tickers(search = None):

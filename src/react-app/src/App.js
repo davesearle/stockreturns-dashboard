@@ -20,6 +20,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import LoadingIndicator from './components/LoadingIndicator';
 import { BrowserRouter, Route, Link } from 'react-router-dom';
+import { colors } from '@material-ui/core';
 
 const theme = createMuiTheme({
     palette: {
@@ -74,7 +75,52 @@ const styles = theme => ({
     toolbar: theme.mixins.toolbar
 });
 
-const reducer = (state = { symbols: ['AAPL', 'MSFT', 'NFLX', 'GOOG', 'AMZN'] }, action) => {
+const chartColours = [
+    '#003f5c',
+    '#ff7c43',
+    '#d45087',
+    '#2f4b7c',
+    '#ffa600',
+    '#665191',
+    '#a05195',
+    '#f95d6a',
+]
+
+const assignColors = (currentMap, symbols) => {
+
+    var colourMap = [];
+    var newMap = [];
+
+    currentMap.forEach((item) => {
+        if(symbols.indexOf(item.symbol) !== -1)
+            colourMap.push(item);
+    })
+
+    var currentSymbolsInMap = colourMap.map((item) => item.symbol);
+
+    symbols.forEach((symbol) => {
+        
+        if(currentSymbolsInMap.indexOf(symbol) === -1) {
+
+            var currentColoursInUse = colourMap.map((item) => item.colour);
+            var colour = chartColours.filter((colour) => currentColoursInUse.indexOf(colour) === -1)[0];
+
+            colourMap.push({ symbol: symbol, colour: colour});
+        }
+    })
+
+    return colourMap;
+}
+
+const getInitialState = () => {
+    var symbols = ['AAPL', 'MSFT', 'NFLX', 'GOOG', 'AMZN'];
+    return { 
+        symbols: symbols, 
+        colours: assignColors([], symbols) 
+    }
+}
+
+const reducer = (state = getInitialState(), action) => {
 
     switch (action.type) {
         case 'FETCHING_START':
@@ -82,7 +128,7 @@ const reducer = (state = { symbols: ['AAPL', 'MSFT', 'NFLX', 'GOOG', 'AMZN'] }, 
         case 'FETCHING_END':
             return Object.assign({}, state, { isLoading: false }); 
         case 'SYMBOLS_SELECTED':
-            return Object.assign({}, state, { symbols: action.symbols });
+            return Object.assign({}, state, { symbols: action.symbols, colours: assignColors(state.colours, action.symbols) });
         default:
             return state;
     }
@@ -92,12 +138,7 @@ const menuItems = [
     { 
         text: 'Closing prices',
         url: '/'
-    }, 
-    { 
-        text: 'Volume',
-        url: '/volume'
-    }, 
-    { 
+    }, { 
         text: 'Returns',
         url: '/returns'
     }]
@@ -141,11 +182,11 @@ class App extends Component {
                             >
                                 <List>
                                     {menuItems.map((item, index) => (
-                                        <div>
-                                        <ListItem button key={item.text} component={Link} to={item.url}>
-                                            <ListItemText>{item.text}</ListItemText>
-                                        </ListItem>
-                                        <Divider />
+                                        <div key={item.text}>
+                                            <ListItem button component={Link} to={item.url}>
+                                                <ListItemText>{item.text}</ListItemText>
+                                            </ListItem>
+                                            <Divider />
                                         </div>
                                     ))}
                                 </List>
@@ -165,3 +206,4 @@ class App extends Component {
 }
 
 export default withStyles(styles, { withTheme: true })(App);
+

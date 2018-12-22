@@ -16,8 +16,14 @@ const getChartOptions = () => {
         },
         plotOptions: {
             series: {
+                lineWidth: 1.5,
                 marker: {
                     enabled: false
+                },
+                states: {
+                    hover: {
+                        enabled: false
+                    }
                 }
             }
         },
@@ -62,7 +68,8 @@ const styles = {
 };
   
 const mapStateToProps = (state) => ({
-    symbols: state.symbols
+    symbols: state.symbols,
+    colours: state.colours
 })
 
 const mapDispatchToProps = (dispatch) => ({
@@ -78,8 +85,8 @@ const getData = (symbol) => {
     return new Promise((resolve, reject) => {
         axios.get('http://localhost:5000/prices/' + symbol)
             .then(response => {
-                var prices = response.data.map(item => [item.date, item.close]);
-                resolve(prices);
+                var data = response.data.map(item => [item.date, item.close]);
+                resolve(data);
             })
             .catch(error => { 
                 console.log(error); 
@@ -87,56 +94,60 @@ const getData = (symbol) => {
             })
     })
 }
-
+const getColour = (colours, symbol) => {
+    var colourCode = colours.filter((colour) => colour.symbol === symbol)[0].colour;
+    return colourCode;
+}
 class StockPriceChart extends Component {
 
-    componentDidMount() {
-        this.props.symbols.forEach((symbol) => {
+    async componentDidMount() {
+        this.props.onLoading();
 
-            this.props.onLoading();
-
-            getData(symbol).then((prices) => {
-                let newSeries = { name: symbol, data: prices }
+        var tasks = this.props.symbols.map((symbol) => {
+            return getData(symbol).then(prices => {
+                let newSeries = { name: symbol, data: prices, color: getColour(this.props.colours, symbol) }
                 this.setState(prevState => ({
                     series: [...prevState ? prevState.series : [], newSeries]
                 }))
-            }).catch(() => {
-
-            }).then(() => {
-                this.props.onLoaded();
-            });
+            })
         });
+
+        await Promise.all(tasks)
+            .then(() => { this.props.onLoaded(); })
+            .catch((error) => { this.props.onLoaded(); });
     }
 
-    componentDidUpdate(prevProps) {
+    async componentDidUpdate(prevProps) {
+
         if (this.props.symbols !== prevProps.symbols) {
+            this.props.onLoading();
 
             // for new symbols, get the price data and add to the component's state
-            this.props.symbols.forEach((symbol) => {
-                if (prevProps.symbols.indexOf(symbol) === -1) {
-
-                    this.props.onLoading();
-
-                    getData(symbol).then((prices) => {
+            var tasks = this.props.symbols
+                .filter((symbol) => prevProps.symbols.indexOf(symbol) === -1)
+                .map((symbol) => {
+                    return getData(symbol).then(prices => {
+                        let newSeries = { name: symbol, data: prices, color: getColour(this.props.colours, symbol) }
                         this.setState(prevState => ({
-                            series: [...prevState.series, { name: symbol, data: prices }]
-                        }));
-                    }).catch(() => {
-
-                    }).then(() => {
-                        this.props.onLoaded();
-                    });
+                            series: [...prevState.series, newSeries]
+                        }))
+                    })
                 }
-            });
+            );
+    
+            await Promise.all(tasks)
+                .then(() => { this.props.onLoaded(); })
+                .catch((error) => { this.props.onLoaded(); });
 
             // for deleted symbols, remove them from the state
-            prevProps.symbols.forEach((symbol) => {
-                if (this.props.symbols.indexOf(symbol) === -1) {
+            prevProps.symbols
+                .filter((symbol) => this.props.symbols.indexOf(symbol) === -1)
+                .forEach((symbol) => {
                     this.setState(prevState => ({
                         series: prevState.series.filter((item, _) => item.name !== symbol)
                     }))
                 }
-            });
+            );
         }
 
         this.renderSeries();

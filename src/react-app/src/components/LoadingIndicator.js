@@ -17,13 +17,11 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
 })
 
-
 class LoadingIndicator extends Component {
-
     render() {
         const { classes } = this.props;
         return (
-            this.props.isLoading ?  <LinearProgress color="secondary" /> : <div className={classes.placeholder}></div>
+            this.props.isLoading ? <LinearProgress color="secondary" /> : <div className={classes.placeholder}></div>
         )
     }
 }

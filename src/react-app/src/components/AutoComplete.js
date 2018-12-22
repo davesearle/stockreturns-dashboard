@@ -11,6 +11,7 @@ import Chip from '@material-ui/core/Chip';
 import MenuItem from '@material-ui/core/MenuItem';
 import CancelIcon from '@material-ui/icons/Cancel';
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
+import { connect } from 'react-redux'
 
 const styles = (theme) => ({
     root: {
@@ -135,11 +136,18 @@ function MultiValue(props) {
             className={classNames(props.selectProps.classes.chip, {
                 [props.selectProps.classes.chipFocused]: props.isFocused,
             })}
+            style={{backgroundColor:getColour(props.selectProps.colours, props.children.match(/\((.*)\)/).pop()), color:'#fff'}}
             onDelete={props.removeProps.onClick}
-            deleteIcon={<CancelIcon {...props.removeProps} />}
+            deleteIcon={<CancelIcon style={{color:'#fff'}} {...props.removeProps} />}
         />
     );
 }
+
+const getColour = (colours, symbol) => {
+    var colourCode = colours.filter((colour) => colour.symbol === symbol)[0].colour;
+    return colourCode;
+}
+
 
 function Menu(props) {
     return (
@@ -158,6 +166,13 @@ const components = {
     Placeholder,
     ValueContainer,
 };
+
+const mapStateToProps = (state) => ({
+    colours: state.colours
+})
+
+const mapDispatchToProps = (dispatch) => ({
+})
 
 class AutoComplete extends Component {
 
@@ -205,6 +220,7 @@ class AutoComplete extends Component {
                         loadOptions={this.props.loadOptions}
                         components={components}
                         onChange={this.handleChange}
+                        colours={this.props.colours}
                         textFieldProps={{
                             label: this.props.label,
                             InputLabelProps: {
@@ -225,7 +241,7 @@ AutoComplete.propTypes = {
     classes: PropTypes.object.isRequired,
     theme: PropTypes.object.isRequired,
     placeholder: PropTypes.string.isRequired,
-    suggestions: PropTypes.func.isRequired
+    loadOptions: PropTypes.func.isRequired
 };
 
-export default withStyles(styles, { withTheme: true })(AutoComplete);
+export default withStyles(styles, { withTheme: true })(connect(mapStateToProps, mapDispatchToProps)(AutoComplete));
