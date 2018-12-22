@@ -20,7 +20,6 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import LoadingIndicator from './components/LoadingIndicator';
 import { BrowserRouter, Route, Link } from 'react-router-dom';
-import { colors } from '@material-ui/core';
 
 const theme = createMuiTheme({
     palette: {
@@ -50,10 +49,9 @@ const styles = theme => ({
     },
     drawerPaper: {
         width: drawerWidth,
-        top: 'auto',
         zIndex:0,
-        marginTop:2,
-        top:150,
+        marginTop:0,
+        top:'auto',
         boxShadow:'12px -24px 32px -22px rgba(0,0,0,0.75)'
     },
     content: {
@@ -65,9 +63,7 @@ const styles = theme => ({
         padding: 0,
     },
     stockPickerPaper: {
-
         padding:theme.spacing.unit * 2,
-        position: 'fixed',
         width: '100%',
         zIndex: 100,
         position:'relative'
@@ -89,7 +85,6 @@ const chartColours = [
 const assignColors = (currentMap, symbols) => {
 
     var colourMap = [];
-    var newMap = [];
 
     currentMap.forEach((item) => {
         if(symbols.indexOf(item.symbol) !== -1)
@@ -99,9 +94,7 @@ const assignColors = (currentMap, symbols) => {
     var currentSymbolsInMap = colourMap.map((item) => item.symbol);
 
     symbols.forEach((symbol) => {
-        
         if(currentSymbolsInMap.indexOf(symbol) === -1) {
-
             var currentColoursInUse = colourMap.map((item) => item.colour);
             var colour = chartColours.filter((colour) => currentColoursInUse.indexOf(colour) === -1)[0];
 
@@ -116,7 +109,9 @@ const getInitialState = () => {
     var symbols = ['AAPL', 'MSFT', 'NFLX', 'GOOG', 'AMZN'];
     return { 
         symbols: symbols, 
-        colours: assignColors([], symbols) 
+        colours: assignColors([], symbols),
+        startDate: '2018-01-01',
+        endDate: new Date().toISOString().slice(0, 10)
     }
 }
 
@@ -129,6 +124,8 @@ const reducer = (state = getInitialState(), action) => {
             return Object.assign({}, state, { isLoading: false }); 
         case 'SYMBOLS_SELECTED':
             return Object.assign({}, state, { symbols: action.symbols, colours: assignColors(state.colours, action.symbols) });
+        case 'DATE_RANGE':
+            return Object.assign({}, state, { startDate: action.startDate, endDate: action.endDate }); 
         default:
             return state;
     }
@@ -136,11 +133,11 @@ const reducer = (state = getInitialState(), action) => {
 
 const menuItems = [
     { 
-        text: 'Closing prices',
+        text: 'Returns',
         url: '/'
     }, { 
-        text: 'Returns',
-        url: '/returns'
+        text: 'Closing prices',
+        url: '/closing-prices'
     }]
 
 const store = Redux.createStore(reducer);
@@ -193,9 +190,9 @@ class App extends Component {
 
                             </Drawer>
                             <main className={classes.content}>
-                                <Route exact path="/" component={StockPriceChart} />
+                                <Route exact path="/" component={StockReturnChart} />
+                                <Route exact path="/closing-prices" component={StockPriceChart} />
                                 <Route exact path="/volume" component={StockVolumeChart} />
-                                <Route exact path="/returns" component={StockReturnChart} />
                             </main>
                         </div>
                     </ReactRedux.Provider>

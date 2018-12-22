@@ -28,11 +28,11 @@ const styles = (theme) => ({
         alignItems: 'center',
         overflow: 'hidden',
         padding: 10,
-        minHeight: 38
+        minHeight: 36
     },
     chip: {
         margin: `${theme.spacing.unit / 2}px ${theme.spacing.unit / 4}px`,
-        height: 30,
+        height: 28,
         fontSize: 14
     },
     chipFocused: {

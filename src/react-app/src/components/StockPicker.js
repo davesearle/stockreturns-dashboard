@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import AutoComplete from './AutoComplete'
 import { connect } from 'react-redux'
 import axios from 'axios'
+import TextField from '@material-ui/core/TextField';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import DateRange from '@material-ui/icons/DateRange';
 
 const searchTickers = (search) => {
     return new Promise((resolve, reject) => {
@@ -9,8 +12,8 @@ const searchTickers = (search) => {
         .then(response => {
 
             var tickers = response.data.map(ticker => ({
-                value: ticker.code,
-                label: ticker.name
+                value: ticker.symbol,
+                label: ticker.name + " (" + ticker.symbol + ")"
             }))
 
             resolve(tickers);
@@ -29,8 +32,8 @@ const getTicker = (symbol) => {
         .then(response => {
             
             var ticker = response.data.map(ticker => ({
-                value: ticker.code,
-                label: ticker.name
+                value: ticker.symbol,
+                label: ticker.name + " (" + ticker.symbol + ")"
             }))[0];
 
             resolve(ticker);
@@ -44,7 +47,9 @@ const getTicker = (symbol) => {
 }
 
 const mapStateToProps = (state) => ({
-    symbols: state.symbols
+    symbols: state.symbols,
+    startDate: state.startDate,
+    endDate: state.endDate
 })
 
 const mapDispatchToProps = (dispatch) => ({
@@ -95,13 +100,35 @@ class StockPicker extends Component {
     render() {
     
         return (
-            <AutoComplete
-                placeholder="Select multiple stocks"
-                loadOptions={this.handleLoadOptions}
-                onChange={this.handleChange}
-                value={this.state.tickers}
-                label="Stocks"
-            />
+            <div style={{display:'flex',flexDirection:'row'}}>
+                <div style={{flexGrow:1}}>
+                    <AutoComplete
+                        placeholder="Select multiple stocks"
+                        loadOptions={this.handleLoadOptions}
+                        onChange={this.handleChange}
+                        value={this.state.tickers}
+                        label="Stocks"
+                    />
+
+                </div>
+                <div style={{minWidth:250,paddingLeft:10,flexGrow:0}}>
+                    <TextField
+                        id="outlined-read-only-input"
+                        label="Date range"
+                        style={{width:'100%'}}
+                        value={this.props.startDate + " - " + this.props.endDate}
+                        InputProps={{
+                            readOnly: true,
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                  <DateRange />
+                                </InputAdornment>
+                              ),
+                        }}
+                        variant="outlined"
+                    />
+                </div>
+            </div>
         )
     }
 }

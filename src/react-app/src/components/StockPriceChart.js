@@ -69,7 +69,9 @@ const styles = {
   
 const mapStateToProps = (state) => ({
     symbols: state.symbols,
-    colours: state.colours
+    colours: state.colours,
+    startDate: state.startDate,
+    endDate: state.endDate
 })
 
 const mapDispatchToProps = (dispatch) => ({
@@ -81,9 +83,9 @@ const mapDispatchToProps = (dispatch) => ({
     }
 })
 
-const getData = (symbol) => {
+const getData = (symbol, startDate, endDate) => {
     return new Promise((resolve, reject) => {
-        axios.get('http://localhost:5000/prices/' + symbol)
+        axios.get('http://localhost:5000/prices/' + symbol + "/" + startDate + "/" + endDate)
             .then(response => {
                 var data = response.data.map(item => [item.date, item.close]);
                 resolve(data);
@@ -98,56 +100,61 @@ const getColour = (colours, symbol) => {
     var colourCode = colours.filter((colour) => colour.symbol === symbol)[0].colour;
     return colourCode;
 }
+
 class StockPriceChart extends Component {
 
-    async componentDidMount() {
+    async loadSeries(symbols, startDate, endDate, reload) {
         this.props.onLoading();
-
-        var tasks = this.props.symbols.map((symbol) => {
-            return getData(symbol).then(prices => {
-                let newSeries = { name: symbol, data: prices, color: getColour(this.props.colours, symbol) }
+        var tasks = symbols.map((symbol) => {
+            return getData(symbol, startDate, endDate).then(data => {
+                if(reload) {
+                    let chart = this.refs.chart.getChart();
+                    chart.series.forEach(item => {
+                        if (item.name === symbol)
+                            item.remove();
+                    })
+                }
+                let newSeries = { 
+                    name: symbol, 
+                    data: data, 
+                    color: getColour(this.props.colours, symbol) 
+                }
                 this.setState(prevState => ({
-                    series: [...prevState ? prevState.series : [], newSeries]
+                    series: [...prevState 
+                        ? (reload 
+                            ? prevState.series.filter((item) => item.name !== symbol) 
+                            : prevState.series) 
+                        : [], newSeries]
                 }))
             })
         });
 
-        await Promise.all(tasks)
-            .then(() => { this.props.onLoaded(); })
-            .catch((error) => { this.props.onLoaded(); });
+        await Promise.all(tasks).then(() => {
+            this.props.onLoaded();
+        }).catch((error) => {
+            this.props.onLoaded();
+        });
+    }
+
+    async componentDidMount() {
+        await this.loadSeries(this.props.symbols, this.props.startDate, this.props.endDate);
     }
 
     async componentDidUpdate(prevProps) {
 
+        if(this.props.startDate !== prevProps.startDate || 
+            this.props.endDate !== prevProps.endDate) 
+        {
+            await this.loadSeries(this.props.symbols, this.props.startDate, this.props.endDate, true);
+        }
+
         if (this.props.symbols !== prevProps.symbols) {
-            this.props.onLoading();
 
-            // for new symbols, get the price data and add to the component's state
-            var tasks = this.props.symbols
-                .filter((symbol) => prevProps.symbols.indexOf(symbol) === -1)
-                .map((symbol) => {
-                    return getData(symbol).then(prices => {
-                        let newSeries = { name: symbol, data: prices, color: getColour(this.props.colours, symbol) }
-                        this.setState(prevState => ({
-                            series: [...prevState.series, newSeries]
-                        }))
-                    })
-                }
-            );
-    
-            await Promise.all(tasks)
-                .then(() => { this.props.onLoaded(); })
-                .catch((error) => { this.props.onLoaded(); });
+            let seriesToLoad = this.props.symbols.filter((symbol) => prevProps.symbols.indexOf(symbol) === -1);
+            let seriesToDelete = prevProps.symbols.filter((symbol) => this.props.symbols.indexOf(symbol) === -1);
 
-            // for deleted symbols, remove them from the state
-            prevProps.symbols
-                .filter((symbol) => this.props.symbols.indexOf(symbol) === -1)
-                .forEach((symbol) => {
-                    this.setState(prevState => ({
-                        series: prevState.series.filter((item, _) => item.name !== symbol)
-                    }))
-                }
-            );
+            await this.loadSeries(seriesToLoad, this.props.startDate, this.props.endDate);
+            this.deleteSeries(seriesToDelete)
         }
 
         this.renderSeries();
