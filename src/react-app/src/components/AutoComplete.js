@@ -33,7 +33,10 @@ const styles = (theme) => ({
     chip: {
         margin: `${theme.spacing.unit / 2}px ${theme.spacing.unit / 4}px`,
         height: 28,
-        fontSize: 14
+        fontSize: 14,
+        boxShadow: '0px 2px 1px -1px rgba(0,0,0,0.1), 0px 1px 1px 0px rgba(0,0,0,0.1), 0px 1px 3px 0px rgba(0,0,0,0.1)',
+        borderRadius: 0,
+        fontWeight: '500'
     },
     chipFocused: {
         backgroundColor: emphasize(
@@ -138,7 +141,7 @@ function MultiValue(props) {
             })}
             style={{backgroundColor:getColour(props.selectProps.colours, props.children.match(/\((.*)\)/).pop()), color:'#fff'}}
             onDelete={props.removeProps.onClick}
-            deleteIcon={<CancelIcon style={{color:'#fff'}} {...props.removeProps} />}
+            deleteIcon={<CancelIcon fontSize="small" style={{color:'#fff'}} {...props.removeProps} />}
         />
     );
 }
