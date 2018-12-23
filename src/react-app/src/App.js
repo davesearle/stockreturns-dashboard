@@ -34,7 +34,7 @@ const theme = createMuiTheme({
 const drawerWidth = 240;
 const styles = theme => ({
     appBarRoot: {
-       
+
     },
     appBar: {
         zIndex: theme.zIndex.drawer + 1,
@@ -49,10 +49,10 @@ const styles = theme => ({
     },
     drawerPaper: {
         width: drawerWidth,
-        zIndex:0,
-        marginTop:0,
-        top:'auto',
-        boxShadow:'12px -24px 32px -22px rgba(0,0,0,0.75)'
+        zIndex: 0,
+        marginTop: 0,
+        top: 'auto',
+        boxShadow: '12px -24px 32px -22px rgba(0,0,0,0.75)'
     },
     content: {
         flexGrow: 1,
@@ -63,10 +63,10 @@ const styles = theme => ({
         padding: 0,
     },
     stockPickerPaper: {
-        padding:theme.spacing.unit * 2,
+        padding: theme.spacing.unit * 2,
         width: '100%',
         zIndex: 100,
-        position:'relative'
+        position: 'relative'
     },
     toolbar: theme.mixins.toolbar
 });
@@ -87,18 +87,18 @@ const assignColors = (currentMap, symbols) => {
     var colourMap = [];
 
     currentMap.forEach((item) => {
-        if(symbols.indexOf(item.symbol) !== -1)
+        if (symbols.indexOf(item.symbol) !== -1)
             colourMap.push(item);
     })
 
     var currentSymbolsInMap = colourMap.map((item) => item.symbol);
 
     symbols.forEach((symbol) => {
-        if(currentSymbolsInMap.indexOf(symbol) === -1) {
+        if (currentSymbolsInMap.indexOf(symbol) === -1) {
             var currentColoursInUse = colourMap.map((item) => item.colour);
             var colour = chartColours.filter((colour) => currentColoursInUse.indexOf(colour) === -1)[0];
 
-            colourMap.push({ symbol: symbol, colour: colour});
+            colourMap.push({ symbol: symbol, colour: colour });
         }
     })
 
@@ -107,8 +107,8 @@ const assignColors = (currentMap, symbols) => {
 
 const getInitialState = () => {
     var symbols = ['AAPL', 'MSFT', 'NFLX', 'GOOG', 'AMZN'];
-    return { 
-        symbols: symbols, 
+    return {
+        symbols: symbols,
         colours: assignColors([], symbols),
         startDate: '2018-01-01',
         endDate: new Date().toISOString().slice(0, 10)
@@ -119,23 +119,25 @@ const reducer = (state = getInitialState(), action) => {
 
     switch (action.type) {
         case 'FETCHING_START':
-            return Object.assign({}, state, { isLoading: true }); 
+            return Object.assign({}, state, { isLoading: true });
         case 'FETCHING_END':
-            return Object.assign({}, state, { isLoading: false }); 
+            return Object.assign({}, state, { isLoading: false });
         case 'SYMBOLS_SELECTED':
             return Object.assign({}, state, { symbols: action.symbols, colours: assignColors(state.colours, action.symbols) });
         case 'DATE_RANGE':
-            return Object.assign({}, state, { startDate: action.startDate, endDate: action.endDate }); 
+            return Object.assign({}, state, { startDate: action.startDate, endDate: action.endDate });
+        case 'DATE_RANGE_RESET':
+            return Object.assign({}, state, { startDate: '2018-01-01', endDate: new Date().toISOString().slice(0, 10) });
         default:
             return state;
     }
 }
 
 const menuItems = [
-    { 
+    {
         text: 'Returns',
         url: '/'
-    }, { 
+    }, {
         text: 'Closing prices',
         url: '/closing-prices'
     }]
@@ -168,7 +170,7 @@ class App extends Component {
                                 <StockPicker />
                             </Paper>
                         </div>
-                        
+
                         <div className={classes.root}>
                             <Drawer
                                 className={classes.drawer}

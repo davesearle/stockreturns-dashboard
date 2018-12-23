@@ -20,7 +20,7 @@ const getChartOptions = (onSelection, onClick) => {
             zoomType: 'x',
             events: {
                 selection: (event) => {
-                    if(event.xAxis != null) {
+                    if (event.xAxis != null) {
                         onSelection(event.xAxis[0].min, event.xAxis[0].max);
                         return false;
                     }
@@ -48,7 +48,7 @@ const getChartOptions = (onSelection, onClick) => {
                 },
                 events: {
                     click: (event) => {
-                        onClick(Highcharts.dateFormat('%Y-%m-%d',event.point.x))
+                        onClick(Highcharts.dateFormat('%Y-%m-%d', event.point.x))
                     }
                 }
             }
@@ -58,7 +58,10 @@ const getChartOptions = (onSelection, onClick) => {
             crosshairs: true
         },
         xAxis: {
-            type: 'datetime'
+            type: 'datetime',
+            labels: {
+                rotation: -45
+            }
         },
         yAxis: {
             title: {
@@ -73,29 +76,29 @@ const getChartOptions = (onSelection, onClick) => {
 
 const styles = {
     root: {
-        display:'flex',
+        display: 'flex',
         flexDirection: 'column',
-        flexGrow:1
+        flexGrow: 1
     },
     paper: {
-        display:'flex',
+        display: 'flex',
         flexDirection: 'row',
-        flexGrow:1,
-        position:'relative'
+        flexGrow: 1,
+        position: 'relative'
     },
     chartContainer: {
-        height:'100%',
-        width:'100%',
-        position:'absolute',
-        overflow:'hidden',
-        padding:'30px 30px 10px 10px'
+        height: '100%',
+        width: '100%',
+        position: 'absolute',
+        overflow: 'hidden',
+        padding: '30px 30px 10px 10px'
     },
     chart: {
-        height:'100%',
-        position:'relative'
+        height: '100%',
+        position: 'relative'
     },
     up: {
-        color:'green'
+        color: 'green'
     },
     down: {
         color: 'red'
@@ -128,8 +131,8 @@ const getData = (symbol, startDate, endDate) => {
                 var data = response.data.map(item => [item.date, item.return]);
                 resolve(data);
             })
-            .catch(error => { 
-                console.log(error); 
+            .catch(error => {
+                console.log(error);
                 reject(error);
             })
     })
@@ -142,8 +145,8 @@ const getStatistics = (symbol, startDate, endDate) => {
                 var data = response.data;
                 resolve(data[0]);
             })
-            .catch(error => { 
-                console.log(error); 
+            .catch(error => {
+                console.log(error);
                 reject(error);
             })
     })
@@ -158,7 +161,7 @@ class StockReturnChart extends Component {
 
     constructor(props) {
         super(props);
-        
+
         this.sidePanel = React.createRef();
 
         this.state = {
@@ -166,28 +169,28 @@ class StockReturnChart extends Component {
             series: []
         };
     }
-    
+
     async loadSeries(symbols, startDate, endDate, reload) {
         this.props.onLoading();
         var tasks = symbols.map((symbol) => {
             return getData(symbol, startDate, endDate).then(data => {
-                if(reload) {
+                if (reload) {
                     let chart = this.refs.chart.getChart();
                     chart.series.forEach(item => {
                         if (item.name === symbol)
                             item.remove();
                     })
                 }
-                let newSeries = { 
-                    name: symbol, 
-                    data: data, 
-                    color: getColour(this.props.colours, symbol) 
+                let newSeries = {
+                    name: symbol,
+                    data: data,
+                    color: getColour(this.props.colours, symbol)
                 }
                 this.setState(prevState => ({
-                    series: [...prevState 
-                        ? (reload 
-                            ? prevState.series.filter((item) => item.name !== symbol) 
-                            : prevState.series) 
+                    series: [...prevState
+                        ? (reload
+                            ? prevState.series.filter((item) => item.name !== symbol)
+                            : prevState.series)
                         : [], newSeries]
                 }))
             })
@@ -213,10 +216,8 @@ class StockReturnChart extends Component {
     }
 
     async componentDidUpdate(prevProps) {
-
-        if(this.props.startDate !== prevProps.startDate || 
-            this.props.endDate !== prevProps.endDate) 
-        {
+        if (this.props.startDate !== prevProps.startDate ||
+            this.props.endDate !== prevProps.endDate) {
             await this.loadSeries(this.props.symbols, this.props.startDate, this.props.endDate, true);
         }
 
@@ -233,7 +234,6 @@ class StockReturnChart extends Component {
     }
 
     renderSeries() {
-
         let chart = this.refs.chart.getChart();
         let stateSymbols = this.state.series.map((item) => item.name);
         let chartSymbols = chart.series.map((item) => item.name);
@@ -257,13 +257,13 @@ class StockReturnChart extends Component {
         this.props.onLoading();
         var tasks = this.props.symbols.map((symbol) => {
             return getStatistics(symbol, this.props.startDate, endDate).then(data => {
-                
-                let stats = { 
+
+                let stats = {
                     symbol: symbol,
                     name: data.name,
                     return: data.return,
-                    startDate: this.props.startDate,
-                    endDate: endDate
+                    startDate: new Date(this.props.startDate),
+                    endDate: new Date(endDate)
                 }
                 this.setState(prevState => ({
                     stats: [...prevState.stats.filter((item) => item.symbol !== symbol), stats]
@@ -297,25 +297,44 @@ class StockReturnChart extends Component {
     handleClick(x) {
         this.sidePanel.current.style.width = '250px';
         this.sidePanel.current.style.padding = '10px';
-        
+
         const chart = this.refs.chart.getChart();
         const points = chart.series[0].data;
 
         var closestPoint = this.findNearestPoint(x, points)
-        var date = Highcharts.dateFormat('%Y-%m-%d',closestPoint.x)
+
+        if (closestPoint == null)
+            return;
+
+        var date = Highcharts.dateFormat('%Y-%m-%d', closestPoint.x)
+
+        chart.series[0].xAxis.removePlotLine('plotline');
+        chart.series[0].xAxis.addPlotLine({
+            value: closestPoint.x,
+            color: '#999',
+            width: 1,
+            dashStyle: 'dash',
+            id: 'plotline',
+            label: {
+                text: date,
+                style: {
+                    color: '#333',
+                }
+            }
+        }
+        );
 
         this.loadStats(date);
     }
 
     handleSelection(minX, maxX) {
-
         const chart = this.refs.chart.getChart();
         const points = chart.series[0].data;
 
         var closestPointMinX = this.findNearestPoint(minX, points);
         var closestPointMaxX = this.findNearestPoint(maxX, points);
-        var startDate = Highcharts.dateFormat('%Y-%m-%d',closestPointMinX.x)
-        var endDate = Highcharts.dateFormat('%Y-%m-%d',closestPointMaxX.x)
+        var startDate = Highcharts.dateFormat('%Y-%m-%d', closestPointMinX.x)
+        var endDate = Highcharts.dateFormat('%Y-%m-%d', closestPointMaxX.x)
 
         this.props.onDateRangeChanged(startDate, endDate);
     }
@@ -328,39 +347,40 @@ class StockReturnChart extends Component {
         return (
             <div className={classes.root}>
                 <Typography variant="h5">
-                    Returns
+                    Cumulative returns
                 </Typography>
                 <Typography className={classes.pos} color="textSecondary">
                     Click a point on the chart for key statistics for that date
                 </Typography>
                 <div style={{ height: 10 }}></div>
                 <Paper elevation={1} className={classes.paper}>
-                    <div style={{flexGrow:1,position:'relative'}}>
+                    <div style={{ flexGrow: 1, position: 'relative' }}>
                         <div className={classes.chartContainer}>
                             <ReactHighcharts
                                 ref="chart"
                                 config={options}
                                 isPureConfig
                                 neverReflow
-                                domProps = {{className: classes.chart}}
+                                domProps={{ className: classes.chart }}
                             />
                         </div>
                     </div>
-                    <div style={{flexGrow:0,position:'relative',borderLeft:'1px solid #ccc',width:0,overflow:'hidden',backgroundColor:'#efefef'}} ref={this.sidePanel}>
-
-                        {stats.map((item, index) => (
+                    <div style={{ flexGrow: 0, position: 'relative', borderLeft: '1px solid #ccc', width: 0, overflow: 'hidden', backgroundColor: '#efefef' }} ref={this.sidePanel}>
+                        {stats.sort((a, b) => ('' + a.name).localeCompare(b.name)).map((item, index) => (
                             <div key={item.name}>
-                                <Card className={classes.card} style={{marginTop:10}}>
+                                <Card className={classes.card} style={{ marginTop: 10 }}>
                                     <CardContent>
                                         <Typography variant="subtitle2" className={classes.title}>
                                             {item.name}
                                         </Typography>
-                                        <Typography variant="h5" component="h2" className={item.return >= 0 ? classes.up : classes.down}>
-                                            {item.return >= 0 ? <ArrowUpward /> : <ArrowDownward />}{item.return}% 
-                                        </Typography>
                                         <Typography className={classes.pos} color="textSecondary">
-                                            {item.startDate} - {item.endDate}
+                                            {item.startDate.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })} -
+                                            {item.endDate.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
                                         </Typography>
+                                        <Typography variant="h5" component="h2" className={item.return >= 0 ? classes.up : classes.down}>
+                                            {item.return >= 0 ? <ArrowUpward /> : <ArrowDownward />}{item.return}%
+                                        </Typography>
+
                                     </CardContent>
                                 </Card>
                             </div>

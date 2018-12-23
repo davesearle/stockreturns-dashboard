@@ -1,18 +1,13 @@
 from flask import Flask
 from flask_cors import CORS
 import pandas as pd
-import quandl
 import json
-import pandas_datareader.data as web
 import datetime
 from iexfinance.stocks import get_historical_data
 from iexfinance import get_available_symbols
 
 app = Flask(__name__)
 CORS(app)
-
-with open("quandl-key.txt") as f:
-    quandl.ApiConfig.api_key = f.read()
 
 @app.route('/prices/<symbol>/<start>/<end>', methods=['GET', 'OPTIONS'])
 def prices(symbol, start, end):

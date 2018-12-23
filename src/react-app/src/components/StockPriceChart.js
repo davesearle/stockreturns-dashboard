@@ -44,29 +44,29 @@ const getChartOptions = () => {
 
 const styles = {
     root: {
-        display:'flex',
+        display: 'flex',
         flexDirection: 'column',
-        flexGrow:1
+        flexGrow: 1
     },
     paper: {
-        display:'flex',
+        display: 'flex',
         flexDirection: 'column',
-        flexGrow:1,
-        position:'relative'
+        flexGrow: 1,
+        position: 'relative'
     },
     chartContainer: {
-        height:'100%',
-        width:'100%',
-        position:'absolute',
-        overflow:'hidden',
-        padding:'30px 30px 30px 10px'
+        height: '100%',
+        width: '100%',
+        position: 'absolute',
+        overflow: 'hidden',
+        padding: '30px 30px 30px 10px'
     },
     chart: {
-        height:'98%',
-        position:'relative'
+        height: '98%',
+        position: 'relative'
     }
 };
-  
+
 const mapStateToProps = (state) => ({
     symbols: state.symbols,
     colours: state.colours,
@@ -90,8 +90,8 @@ const getData = (symbol, startDate, endDate) => {
                 var data = response.data.map(item => [item.date, item.close]);
                 resolve(data);
             })
-            .catch(error => { 
-                console.log(error); 
+            .catch(error => {
+                console.log(error);
                 reject(error);
             })
     })
@@ -107,23 +107,23 @@ class StockPriceChart extends Component {
         this.props.onLoading();
         var tasks = symbols.map((symbol) => {
             return getData(symbol, startDate, endDate).then(data => {
-                if(reload) {
+                if (reload) {
                     let chart = this.refs.chart.getChart();
                     chart.series.forEach(item => {
                         if (item.name === symbol)
                             item.remove();
                     })
                 }
-                let newSeries = { 
-                    name: symbol, 
-                    data: data, 
-                    color: getColour(this.props.colours, symbol) 
+                let newSeries = {
+                    name: symbol,
+                    data: data,
+                    color: getColour(this.props.colours, symbol)
                 }
                 this.setState(prevState => ({
-                    series: [...prevState 
-                        ? (reload 
-                            ? prevState.series.filter((item) => item.name !== symbol) 
-                            : prevState.series) 
+                    series: [...prevState
+                        ? (reload
+                            ? prevState.series.filter((item) => item.name !== symbol)
+                            : prevState.series)
                         : [], newSeries]
                 }))
             })
@@ -141,10 +141,8 @@ class StockPriceChart extends Component {
     }
 
     async componentDidUpdate(prevProps) {
-
-        if(this.props.startDate !== prevProps.startDate || 
-            this.props.endDate !== prevProps.endDate) 
-        {
+        if (this.props.startDate !== prevProps.startDate ||
+            this.props.endDate !== prevProps.endDate) {
             await this.loadSeries(this.props.symbols, this.props.startDate, this.props.endDate, true);
         }
 
@@ -161,7 +159,6 @@ class StockPriceChart extends Component {
     }
 
     renderSeries() {
-
         let chart = this.refs.chart.getChart();
         let stateSymbols = this.state.series.map((item) => item.name);
         let chartSymbols = chart.series.map((item) => item.name);
@@ -182,7 +179,7 @@ class StockPriceChart extends Component {
     render() {
         const options = getChartOptions();
         const { classes } = this.props;
-        
+
         return (
             <div className={classes.root}>
                 <Typography variant="h5">
@@ -196,7 +193,7 @@ class StockPriceChart extends Component {
                             config={options}
                             isPureConfig
                             neverReflow
-                            domProps = {{className: classes.chart}}
+                            domProps={{ className: classes.chart }}
                         />
                     </div>
                 </Paper>

@@ -8,6 +8,7 @@
     "axios": "^0.18.0",
     "highcharts": "^7.0.0",
     "react": "^16.6.3",
+    "react-date-range": "^1.0.0-beta",
     "react-dom": "^16.6.3",
     "react-highcharts": "^16.0.2",
     "react-redux": "^6.0.0",
