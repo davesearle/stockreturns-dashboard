@@ -15,7 +15,3 @@ pip3 install -r requirements.txt
 pip3 freeze > requirements.txt
 
 env FLASK_DEBUG=1 python -m flask run --port 5000
-
-
-# nasdaq, nyse, amex
-# from http://www.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=nasdaq&render=download
