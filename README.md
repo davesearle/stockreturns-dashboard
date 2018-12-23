@@ -1,3 +1,7 @@
+# Stock returns app
+
+![Alt text](stock_returns_app.png?raw=true "Stock returns app screenshot")
+
 install python 3.7
 
 upgrade pip
