@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import StockPicker from "./components/StockPicker";
 import StockPriceChart from "./components/StockPriceChart";
-import StockVolumeChart from "./components/StockVolumeChart";
 import StockReturnChart from "./components/StockReturnChart";
 import Paper from "@material-ui/core/Paper";
 import ListItem from "@material-ui/core/ListItem";
@@ -29,6 +28,9 @@ const theme = createMuiTheme({
     secondary: {
       main: "#a58100"
     }
+  },
+  typography: {
+    useNextVariants: true
   }
 });
 const drawerWidth = 240;
@@ -131,7 +133,6 @@ class App extends Component {
                   path="/closing-prices"
                   component={StockPriceChart}
                 />
-                <Route exact path="/volume" component={StockVolumeChart} />
               </main>
             </div>
           </ReactRedux.Provider>

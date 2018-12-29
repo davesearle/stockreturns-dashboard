@@ -1,46 +1,10 @@
 import React, { Component } from "react";
-import ReactHighcharts from "react-highcharts";
-import axios from "axios";
-import { connect } from "react-redux";
+import TimeSeriesChart from "./TimeSeriesChart";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
+import { connect } from "react-redux";
 import { withStyles } from "@material-ui/core/styles";
-
-const getChartOptions = () => {
-  return {
-    title: {
-      text: ""
-    },
-    chart: {
-      zoomType: "x"
-    },
-    plotOptions: {
-      series: {
-        lineWidth: 1.5,
-        marker: {
-          enabled: false
-        },
-        states: {
-          hover: {
-            enabled: false
-          }
-        }
-      }
-    },
-    tooltip: {
-      shared: true,
-      crosshairs: true
-    },
-    xAxis: {
-      type: "datetime"
-    },
-    yAxis: {
-      title: {
-        text: "Closing price - USD"
-      }
-    }
-  };
-};
+import { getPrices } from "../services/stockService";
 
 const styles = {
   root: {
@@ -50,20 +14,10 @@ const styles = {
   },
   paper: {
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "row",
     flexGrow: 1,
-    position: "relative"
-  },
-  chartContainer: {
-    height: "100%",
-    width: "100%",
-    position: "absolute",
-    overflow: "hidden",
-    padding: "30px 30px 30px 10px"
-  },
-  chart: {
-    height: "98%",
-    position: "relative"
+    position: "relative",
+    marginTop: 10
   }
 };
 
@@ -83,37 +37,20 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
-const getData = (symbol, startDate, endDate) => {
-  return new Promise((resolve, reject) => {
-    axios
-      .get(
-        "http://localhost:5000/prices/" +
-          symbol +
-          "/" +
-          startDate +
-          "/" +
-          endDate
-      )
-      .then(response => {
-        var data = response.data.map(item => [item.date, item.close]);
-        resolve(data);
-      })
-      .catch(error => {
-        console.log(error);
-        reject(error);
-      });
-  });
-};
 const getColour = (colours, symbol) => {
   var colourCode = colours.filter(colour => colour.symbol === symbol)[0].colour;
   return colourCode;
 };
 
 class StockPriceChart extends Component {
+  state = {
+    series: []
+  };
+
   async loadSeries(symbols, startDate, endDate, reload) {
     this.props.onLoading();
     var tasks = symbols.map(symbol => {
-      return getData(symbol, startDate, endDate).then(data => {
+      return getPrices(symbol, startDate, endDate).then(data => {
         if (reload) {
           let chart = this.refs.chart.getChart();
           chart.series.forEach(item => {
@@ -145,6 +82,14 @@ class StockPriceChart extends Component {
       .catch(error => {
         this.props.onLoaded();
       });
+  }
+
+  deleteSeries(symbols) {
+    symbols.forEach(symbol => {
+      this.setState(prevState => ({
+        series: prevState.series.filter((item, _) => item.name !== symbol)
+      }));
+    });
   }
 
   async componentDidMount() {
@@ -183,44 +128,22 @@ class StockPriceChart extends Component {
       );
       this.deleteSeries(seriesToDelete);
     }
-
-    this.renderSeries();
-  }
-
-  renderSeries() {
-    let chart = this.refs.chart.getChart();
-    let stateSymbols = this.state.series.map(item => item.name);
-    let chartSymbols = chart.series.map(item => item.name);
-
-    // for each series in the state, make sure it's been added to the chart
-    this.state.series.forEach(item => {
-      if (chartSymbols.indexOf(item.name) === -1) chart.addSeries(item);
-    });
-
-    // remove series from the chart that arent in the state
-    chart.series.forEach(item => {
-      if (stateSymbols.indexOf(item.name) === -1) item.remove();
-    });
   }
 
   render() {
-    const options = getChartOptions();
     const { classes } = this.props;
 
     return (
       <div className={classes.root}>
         <Typography variant="h5">Closing prices</Typography>
-        <div style={{ height: 10 }} />
+        <Typography color="textSecondary">
+          Click a point on the chart for key statistics for that date
+        </Typography>
         <Paper elevation={1} className={classes.paper}>
-          <div className={classes.chartContainer}>
-            <ReactHighcharts
-              ref="chart"
-              config={options}
-              isPureConfig
-              neverReflow
-              domProps={{ className: classes.chart }}
-            />
-          </div>
+          <TimeSeriesChart
+            series={this.state.series}
+            yAxisLabel="Closing price - USD"
+          />
         </Paper>
       </div>
     );

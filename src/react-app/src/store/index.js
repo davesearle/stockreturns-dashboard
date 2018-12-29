@@ -22,7 +22,7 @@ const reducer = (state = getInitialState(), action) => {
         symbols: action.symbols,
         colours: assignColors(state.colours, action.symbols)
       });
-    case "DATE_RANGE":
+    case "DATE_RANGE_SELECTED":
       return Object.assign({}, state, {
         startDate: action.startDate,
         endDate: action.endDate

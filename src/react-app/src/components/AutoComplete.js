@@ -11,7 +11,6 @@ import Chip from "@material-ui/core/Chip";
 import MenuItem from "@material-ui/core/MenuItem";
 import CancelIcon from "@material-ui/icons/Cancel";
 import { emphasize } from "@material-ui/core/styles/colorManipulator";
-import { connect } from "react-redux";
 
 const styles = theme => ({
   root: {
@@ -147,10 +146,7 @@ function MultiValue(props) {
         [props.selectProps.classes.chipFocused]: props.isFocused
       })}
       style={{
-        backgroundColor: getColour(
-          props.selectProps.colours,
-          props.children.match(/\((.*)\)/).pop()
-        ),
+        backgroundColor: props.selectProps.chipColour(props.children),
         color: "#fff"
       }}
       onDelete={props.removeProps.onClick}
@@ -164,11 +160,6 @@ function MultiValue(props) {
     />
   );
 }
-
-const getColour = (colours, symbol) => {
-  var colourCode = colours.filter(colour => colour.symbol === symbol)[0].colour;
-  return colourCode;
-};
 
 function Menu(props) {
   return (
@@ -191,12 +182,6 @@ const components = {
   Placeholder,
   ValueContainer
 };
-
-const mapStateToProps = state => ({
-  colours: state.colours
-});
-
-const mapDispatchToProps = dispatch => ({});
 
 class AutoComplete extends Component {
   state = {
@@ -243,7 +228,7 @@ class AutoComplete extends Component {
             loadOptions={this.props.loadOptions}
             components={components}
             onChange={this.handleChange}
-            colours={this.props.colours}
+            chipColour={this.props.chipColour}
             textFieldProps={{
               label: this.props.label,
               InputLabelProps: {
@@ -267,9 +252,4 @@ AutoComplete.propTypes = {
   loadOptions: PropTypes.func.isRequired
 };
 
-export default withStyles(styles, { withTheme: true })(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(AutoComplete)
-);
+export default withStyles(styles, { withTheme: true })(AutoComplete);
