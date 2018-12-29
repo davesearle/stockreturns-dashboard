@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import StockPicker from "./components/StockPicker";
-import StockPriceChart from "./components/StockPriceChart";
-import StockReturnChart from "./components/StockReturnChart";
+import StockPriceChart from "./scenes/StockPriceChart";
+import StockReturnChart from "./scenes/StockReturnChart";
 import Paper from "@material-ui/core/Paper";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";

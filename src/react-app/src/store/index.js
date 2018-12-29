@@ -1,5 +1,5 @@
 import * as Redux from "redux";
-import seriesColours from "../common/seriesColours";
+import seriesColours from "../colours";
 
 const getInitialState = () => {
   var symbols = ["AAPL", "MSFT", "NFLX", "GOOG", "AMZN"];
