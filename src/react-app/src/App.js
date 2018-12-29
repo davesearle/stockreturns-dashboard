@@ -4,22 +4,22 @@ import StockPriceChart from "./components/StockPriceChart";
 import StockVolumeChart from "./components/StockVolumeChart";
 import StockReturnChart from "./components/StockReturnChart";
 import Paper from "@material-ui/core/Paper";
-import * as Redux from "redux";
-import * as ReactRedux from "react-redux";
-import "./App.css";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
-import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
 import List from "@material-ui/core/List";
 import Divider from "@material-ui/core/Divider";
-import { withStyles } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import LoadingIndicator from "./components/LoadingIndicator";
 import { BrowserRouter, Route, Link } from "react-router-dom";
+import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
+import { withStyles } from "@material-ui/core/styles";
+import * as ReactRedux from "react-redux";
+import "./App.css";
+import store from "./store";
 
 const theme = createMuiTheme({
   palette: {
@@ -69,76 +69,6 @@ const styles = theme => ({
   toolbar: theme.mixins.toolbar
 });
 
-const chartColours = [
-  "#003f5c",
-  "#ff7c43",
-  "#d45087",
-  "#2f4b7c",
-  "#ffa600",
-  "#665191",
-  "#a05195",
-  "#f95d6a"
-];
-
-const assignColors = (currentMap, symbols) => {
-  var colourMap = [];
-
-  currentMap.forEach(item => {
-    if (symbols.indexOf(item.symbol) !== -1) colourMap.push(item);
-  });
-
-  var currentSymbolsInMap = colourMap.map(item => item.symbol);
-
-  symbols.forEach(symbol => {
-    if (currentSymbolsInMap.indexOf(symbol) === -1) {
-      var currentColoursInUse = colourMap.map(item => item.colour);
-      var colour = chartColours.filter(
-        colour => currentColoursInUse.indexOf(colour) === -1
-      )[0];
-
-      colourMap.push({ symbol: symbol, colour: colour });
-    }
-  });
-
-  return colourMap;
-};
-
-const getInitialState = () => {
-  var symbols = ["AAPL", "MSFT", "NFLX", "GOOG", "AMZN"];
-  return {
-    symbols: symbols,
-    colours: assignColors([], symbols),
-    startDate: "2018-01-01",
-    endDate: new Date().toISOString().slice(0, 10)
-  };
-};
-
-const reducer = (state = getInitialState(), action) => {
-  switch (action.type) {
-    case "FETCHING_START":
-      return Object.assign({}, state, { isLoading: true });
-    case "FETCHING_END":
-      return Object.assign({}, state, { isLoading: false });
-    case "SYMBOLS_SELECTED":
-      return Object.assign({}, state, {
-        symbols: action.symbols,
-        colours: assignColors(state.colours, action.symbols)
-      });
-    case "DATE_RANGE":
-      return Object.assign({}, state, {
-        startDate: action.startDate,
-        endDate: action.endDate
-      });
-    case "DATE_RANGE_RESET":
-      return Object.assign({}, state, {
-        startDate: "2018-01-01",
-        endDate: new Date().toISOString().slice(0, 10)
-      });
-    default:
-      return state;
-  }
-};
-
 const menuItems = [
   {
     text: "Returns",
@@ -149,8 +79,6 @@ const menuItems = [
     url: "/closing-prices"
   }
 ];
-
-const store = Redux.createStore(reducer);
 
 class App extends Component {
   render() {
