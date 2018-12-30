@@ -37,8 +37,8 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
-class StockPriceChart extends Component {
-  getData(symbol, startDate, endDate) {
+class StockPrices extends Component {
+  getChartData(symbol, startDate, endDate) {
     return getPrices(symbol, startDate, endDate);
   }
   render() {
@@ -52,7 +52,7 @@ class StockPriceChart extends Component {
         </Typography>
         <Paper elevation={1} className={classes.paper}>
           <StockChart
-            getData={this.getData}
+            getData={this.getChartData}
             yAxisLabel="Closing price - USD"
             onLoading={this.props.onLoading}
             onLoaded={this.props.onLoaded}
@@ -71,5 +71,5 @@ export default withStyles(styles, { withTheme: true })(
   connect(
     mapStateToProps,
     mapDispatchToProps
-  )(StockPriceChart)
+  )(StockPrices)
 );

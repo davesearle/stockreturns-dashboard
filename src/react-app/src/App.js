@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import StockPicker from "./components/StockPicker";
-import StockPriceChart from "./scenes/StockPriceChart";
-import StockReturnChart from "./scenes/StockReturnChart";
+import StockPrices from "./scenes/StockPrices";
+import StockReturns from "./scenes/StockReturns";
 import Paper from "@material-ui/core/Paper";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
@@ -127,12 +127,8 @@ class App extends Component {
                 </List>
               </Drawer>
               <main className={classes.content}>
-                <Route exact path="/" component={StockReturnChart} />
-                <Route
-                  exact
-                  path="/closing-prices"
-                  component={StockPriceChart}
-                />
+                <Route exact path="/" component={StockReturns} />
+                <Route exact path="/closing-prices" component={StockPrices} />
               </main>
             </div>
           </ReactRedux.Provider>
