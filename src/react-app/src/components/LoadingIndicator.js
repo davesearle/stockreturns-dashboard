@@ -29,7 +29,8 @@ class LoadingIndicator extends Component {
 }
 const loadingSelector = createLoadingSelector([
   "FETCH_SERIES",
-  "FETCH_RETURNS_METRICS"
+  "FETCH_RETURNS_METRICS",
+  "FETCH_PRICES_METRICS"
 ]);
 
 export default withStyles(styles)(

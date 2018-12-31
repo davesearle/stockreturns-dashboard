@@ -10,15 +10,30 @@ app = Flask(__name__)
 CORS(app)
 
 @app.route('/prices/timeseries/<symbol>/<start>/<end>', methods=['GET', 'OPTIONS'])
-def prices(symbol, start, end):
+def prices_timeseries(symbol, start, end):
 
     df = get_historical_data(symbol, start, end, output_format='pandas')
     df = df["close"]
     
     return df.reset_index().to_json(orient='records')
 
+@app.route('/prices/metrics/<symbol>/<date>', methods=['GET', 'OPTIONS'])
+def prices_metrics(symbol, date):
+
+    close_prices = get_historical_data(symbol, date, date, output_format='pandas')
+    close_prices = close_prices.tail(1)
+
+    df = pd.read_json("symbols.json", orient='columns')
+    df = df.loc[df['symbol'] == symbol]
+
+    close_prices["symbol"] = symbol
+    close_prices["name"] = df.iloc[0]['name']
+    close_prices["date"] = date
+
+    return close_prices.to_json(orient='records')
+
 @app.route('/returns/timeseries/<symbol>/<start>/<end>', methods=['GET', 'OPTIONS'])
-def returns(symbol, start, end):
+def returns_timeseries(symbol, start, end):
 
     df = get_historical_data(symbol, start, end, output_format='pandas')
 
@@ -29,7 +44,7 @@ def returns(symbol, start, end):
     return stock_returns.reset_index().to_json(orient='records')
 
 @app.route('/returns/metrics/<symbol>/<start>/<end>', methods=['GET', 'OPTIONS'])
-def statistics(symbol, start, end):
+def returns_metrics(symbol, start, end):
 
     df = get_historical_data(symbol, start, end, output_format='pandas')
 

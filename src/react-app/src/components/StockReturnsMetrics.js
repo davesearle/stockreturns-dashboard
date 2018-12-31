@@ -11,7 +11,7 @@ const styles = {
     flexGrow: 0,
     position: "relative",
     borderLeft: "1px solid #ccc",
-    overflow: "hidden",
+    overflow: "auto",
     backgroundColor: "#efefef"
   },
   card: {
@@ -34,8 +34,8 @@ class StockReturnsMetrics extends Component {
       <div
         className={classes.root}
         style={{
-          width: this.props.date ? 250 : 0,
-          padding: this.props.date ? 10 : 0
+          width: metrics.length > 0 ? 250 : 0,
+          padding: metrics.length > 0 ? 10 : 0
         }}
         ref={this.sidePanel}
       >

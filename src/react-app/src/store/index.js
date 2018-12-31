@@ -4,12 +4,14 @@ import thunk from "redux-thunk";
 import { combineReducers } from "redux";
 import createTimeSeriesReducer from "../reducers/timeSeriesReducer";
 import createReturnsReducer from "../reducers/returnsReducer";
+import createPricesReducer from "../reducers/pricesReducer";
 import createAppReducer from "../reducers/appReducer";
 import loadingReducer from "../reducers/loadingReducer";
 
 const rootReducer = combineReducers({
   app: createAppReducer(),
   returns: createReturnsReducer(),
+  prices: createPricesReducer(),
   pricesTimeSeries: createTimeSeriesReducer("pricesTimeSeries"),
   returnsTimeSeries: createTimeSeriesReducer("returnsTimeSeries"),
   loading: loadingReducer
