@@ -60,7 +60,7 @@ const getChartOptions = (onSelection, onClick, props) => {
         text: props.yAxisLabel
       },
       labels: {
-        format: "{value}%"
+        format: props.yAxisFormat
       }
     }
   };
@@ -103,13 +103,13 @@ class TimeSeriesChart extends Component {
   clearAllSeries() {
     const chart = this.refs.chart.getChart();
     while (chart.series.length > 0) {
-      chart.series[0].remove(true);
+      chart.series[0].remove();
     }
   }
   removeSeries(name) {
     let chart = this.refs.chart.getChart();
     chart.series.forEach(item => {
-      if (item.name === name) item.remove(true);
+      if (item.name === name) item.remove();
     });
     chart.reflow();
   }
@@ -128,8 +128,29 @@ class TimeSeriesChart extends Component {
 
     // remove series from the chart that arent in the state
     chart.series.forEach(item => {
-      if (stateSeries.indexOf(item.name) === -1) item.remove(true);
+      if (stateSeries.indexOf(item.name) === -1) item.remove();
     });
+
+    // update existing series in case they have changed
+    this.props.series.forEach(stateSeriesItem => {
+      var chartSeriesItem = chart.series.find(
+        i => i.name === stateSeriesItem.name
+      );
+      if (chartSeriesItem !== undefined) {
+        if (chartSeriesItem.data.length !== stateSeriesItem.data.length) {
+          chartSeriesItem.remove();
+          chart.addSeries(stateSeriesItem);
+        }
+      }
+    });
+
+    if (
+      this.props.selectedDate !== null &&
+      this.props.selectedDate !== undefined
+    ) {
+      let x = Date.parse(this.props.selectedDate);
+      this.addPlotLine({ x: x }, this.props.selectedDate);
+    }
 
     chart.reflow();
   }
@@ -149,6 +170,9 @@ class TimeSeriesChart extends Component {
   }
   addPlotLine(closestPoint, date) {
     const chart = this.refs.chart.getChart();
+
+    if (chart.series[0] === undefined) return;
+
     chart.series[0].xAxis.removePlotLine("plotline");
     chart.series[0].xAxis.addPlotLine({
       value: closestPoint.x,

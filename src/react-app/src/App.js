@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import StockPicker from "./components/StockPicker";
-import StockPrices from "./scenes/StockPrices";
-import StockReturns from "./scenes/StockReturns";
+import StockPickerContainer from "./containers/StockPickerContainer";
+import StockPricesContainer from "./containers/StockPricesContainer";
+import StockReturnsContainer from "./containers/StockReturnsContainer";
 import Paper from "@material-ui/core/Paper";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
@@ -103,7 +103,7 @@ class App extends Component {
             <LoadingIndicator />
             <div className={classes.stockPicker}>
               <Paper elevation={1} className={classes.stockPickerPaper}>
-                <StockPicker />
+                <StockPickerContainer />
               </Paper>
             </div>
 
@@ -127,8 +127,12 @@ class App extends Component {
                 </List>
               </Drawer>
               <main className={classes.content}>
-                <Route exact path="/" component={StockReturns} />
-                <Route exact path="/closing-prices" component={StockPrices} />
+                <Route exact path="/" component={StockReturnsContainer} />
+                <Route
+                  exact
+                  path="/closing-prices"
+                  component={StockPricesContainer}
+                />
               </main>
             </div>
           </ReactRedux.Provider>

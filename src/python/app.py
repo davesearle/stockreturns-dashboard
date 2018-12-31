@@ -9,7 +9,7 @@ from iexfinance import get_available_symbols
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/prices/<symbol>/<start>/<end>', methods=['GET', 'OPTIONS'])
+@app.route('/prices/timeseries/<symbol>/<start>/<end>', methods=['GET', 'OPTIONS'])
 def prices(symbol, start, end):
 
     df = get_historical_data(symbol, start, end, output_format='pandas')
@@ -17,7 +17,7 @@ def prices(symbol, start, end):
     
     return df.reset_index().to_json(orient='records')
 
-@app.route('/returns/<symbol>/<start>/<end>', methods=['GET', 'OPTIONS'])
+@app.route('/returns/timeseries/<symbol>/<start>/<end>', methods=['GET', 'OPTIONS'])
 def returns(symbol, start, end):
 
     df = get_historical_data(symbol, start, end, output_format='pandas')
@@ -28,7 +28,7 @@ def returns(symbol, start, end):
 
     return stock_returns.reset_index().to_json(orient='records')
 
-@app.route('/statistics/<symbol>/<start>/<end>', methods=['GET', 'OPTIONS'])
+@app.route('/returns/metrics/<symbol>/<start>/<end>', methods=['GET', 'OPTIONS'])
 def statistics(symbol, start, end):
 
     df = get_historical_data(symbol, start, end, output_format='pandas')
@@ -41,9 +41,12 @@ def statistics(symbol, start, end):
     df = pd.read_json("symbols.json", orient='columns')
     df = df.loc[df['symbol'] == symbol]
 
+    stock_returns["symbol"] = symbol
     stock_returns["name"] = df.iloc[0]['name']
+    stock_returns["startDate"] = start
+    stock_returns["endDate"] = end
 
-    return stock_returns.reset_index().to_json(orient='records')
+    return stock_returns.to_json(orient='records')
 
 @app.route('/tickers/search/', methods=['GET', 'OPTIONS'])
 @app.route('/tickers/search/<search>', methods=['GET', 'OPTIONS'])

@@ -1,10 +1,5 @@
 import React, { Component } from "react";
-import TimeSeriesChart from "../components/TimeSeriesChart";
-
-const getColour = (colours, symbol) => {
-  var colourCode = colours.filter(colour => colour.symbol === symbol)[0].colour;
-  return colourCode;
-};
+import TimeSeriesChart from "./TimeSeriesChart";
 
 class StockChart extends Component {
   constructor(props) {
@@ -18,101 +13,53 @@ class StockChart extends Component {
   }
 
   handleDateRangeSelected(startDate, endDate) {
-    if (this.props.onDateRangeSelected)
+    if (this.props.onDateRangeSelected) {
       this.props.onDateRangeSelected(startDate, endDate);
+    }
   }
 
   handleDateSelected(date) {
-    if (this.props.onDateSelected) this.props.onDateSelected(date);
+    if (this.props.onDateSelected) {
+      this.props.onDateSelected(date);
+    }
   }
 
-  async loadSeries(symbols, startDate, endDate, reload) {
-    this.props.onLoading();
-    var tasks = symbols.map(symbol => {
-      return this.props.getData(symbol, startDate, endDate).then(data => {
-        if (reload) {
-          this.chart.removeSeries(symbol);
-        }
-        let newSeries = {
-          name: symbol,
-          data: data,
-          color: getColour(this.props.colours, symbol)
-        };
-        this.setState(prevState => ({
-          series: [
-            ...(prevState
-              ? reload
-                ? prevState.series.filter(item => item.name !== symbol)
-                : prevState.series
-              : []),
-            newSeries
-          ]
-        }));
-      });
+  renderSeries() {
+    var series = this.props.series.map(item => {
+      let colour = this.props.colours.find(c => c.symbol === item.name);
+      return {
+        name: item.name,
+        color: colour !== undefined ? colour.colour : null,
+        data: item.data
+      };
     });
 
-    await Promise.all(tasks)
-      .then(() => {
-        this.props.onLoaded();
-      })
-      .catch(error => {
-        this.props.onLoaded();
-      });
-  }
-
-  deleteSeries(symbols) {
-    symbols.forEach(symbol => {
-      this.setState(prevState => ({
-        series: prevState.series.filter((item, _) => item.name !== symbol)
-      }));
-    });
+    this.setState(prevState => ({
+      series: series
+    }));
   }
 
   async componentDidMount() {
-    await this.loadSeries(
-      this.props.symbols,
-      this.props.startDate,
-      this.props.endDate
-    );
+    this.renderSeries();
   }
 
-  async componentDidUpdate(prevProps) {
-    if (
-      this.props.startDate !== prevProps.startDate ||
-      this.props.endDate !== prevProps.endDate
-    ) {
-      await this.loadSeries(
-        this.props.symbols,
-        this.props.startDate,
-        this.props.endDate,
-        true
-      );
-    }
-
-    if (this.props.symbols !== prevProps.symbols) {
-      let seriesToLoad = this.props.symbols.filter(
-        symbol => prevProps.symbols.indexOf(symbol) === -1
-      );
-      let seriesToDelete = prevProps.symbols.filter(
-        symbol => this.props.symbols.indexOf(symbol) === -1
-      );
-
-      await this.loadSeries(
-        seriesToLoad,
-        this.props.startDate,
-        this.props.endDate
-      );
-      this.deleteSeries(seriesToDelete);
+  componentDidUpdate(prevProps) {
+    if (this.props.series !== prevProps.series) {
+      this.renderSeries();
     }
   }
+
   render() {
+    var series = this.state.series;
     return (
       <TimeSeriesChart
         onRef={ref => (this.chart = ref)}
-        series={this.state.series}
+        series={series}
         yAxisLabel={this.props.yAxisLabel}
+        yAxisFormat={this.props.yAxisFormat}
         onDateRangeSelected={this.handleDateRangeSelected.bind(this)}
         onDateSelected={this.handleDateSelected.bind(this)}
+        selectedDate={this.props.selectedDate}
       />
     );
   }

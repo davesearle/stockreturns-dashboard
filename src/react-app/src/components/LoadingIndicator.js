@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import { connect } from "react-redux";
 import { withStyles } from "@material-ui/core";
+import { createLoadingSelector } from "../helpers/loadingSelector";
 
 const styles = {
   placeholder: {
@@ -11,7 +12,7 @@ const styles = {
 };
 
 const mapStateToProps = state => ({
-  isLoading: state.isLoading
+  isLoading: loadingSelector(state)
 });
 
 const mapDispatchToProps = dispatch => ({});
@@ -26,6 +27,10 @@ class LoadingIndicator extends Component {
     );
   }
 }
+const loadingSelector = createLoadingSelector([
+  "FETCH_SERIES",
+  "FETCH_RETURNS_METRICS"
+]);
 
 export default withStyles(styles)(
   connect(

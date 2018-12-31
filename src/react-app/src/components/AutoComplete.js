@@ -33,9 +33,6 @@ const styles = theme => ({
     margin: `${theme.spacing.unit / 2}px ${theme.spacing.unit / 4}px`,
     height: 28,
     fontSize: 14,
-    boxShadow:
-      "0px 2px 1px -1px rgba(0,0,0,0.1), 0px 1px 1px 0px rgba(0,0,0,0.1), 0px 1px 3px 0px rgba(0,0,0,0.1)",
-    borderRadius: 0,
     fontWeight: "500"
   },
   chipFocused: {

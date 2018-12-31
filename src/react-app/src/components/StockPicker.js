@@ -1,57 +1,18 @@
 import React, { Component } from "react";
 import AutoComplete from "./AutoComplete";
 import DateRangeSelector from "./DateRangeSelector";
-import { connect } from "react-redux";
-import { searchTickers, getTickers } from "../services/stockService";
+import { withStyles } from "@material-ui/core/styles";
 
-const mapStateToProps = state => ({
-  symbols: state.symbols,
-  startDate: state.startDate,
-  endDate: state.endDate,
-  colours: state.colours
-});
-
-const mapDispatchToProps = dispatch => ({
-  onSymbolsSelected: symbols => {
-    dispatch({ type: "SYMBOLS_SELECTED", symbols });
-  },
-  onDateRangeSelected: (startDate, endDate) => {
-    dispatch({
-      type: "DATE_RANGE_SELECTED",
-      startDate: startDate,
-      endDate: endDate
-    });
-  },
-  onDateRangeReset: () => {
-    dispatch({ type: "DATE_RANGE_RESET" });
-  }
-});
+const styles = {
+  root: { display: "flex", flexDirection: "row" },
+  popperPaper: { marginTop: 0, zIndex: 100 },
+  autoComplete: { flexGrow: 1 },
+  dateRangeSelector: { minWidth: 250, paddingLeft: 10, flexGrow: 0 }
+};
 
 class StockPicker extends Component {
-  state = {
-    tickers: []
-  };
-
-  async componentDidMount() {
-    var data = await getTickers(this.props.symbols);
-
-    this.setState(() => ({
-      tickers: data
-    }));
-  }
-
   handleChange = symbols => {
-    this.setState(() => ({
-      tickers: symbols.map(symbol => symbol)
-    }));
-
     this.props.onSymbolsSelected(symbols.map(symbol => symbol.value));
-  };
-
-  handleLoadOptions = (inputValue, callback) => {
-    searchTickers(inputValue).then(tickers => {
-      callback(tickers);
-    });
   };
 
   handleChipColour(label) {
@@ -63,19 +24,21 @@ class StockPicker extends Component {
   }
 
   render() {
+    const { classes } = this.props;
+
     return (
-      <div style={{ display: "flex", flexDirection: "row" }}>
-        <div style={{ flexGrow: 1 }}>
+      <div className={classes.root}>
+        <div className={classes.autoComplete}>
           <AutoComplete
             placeholder="Select multiple stocks"
             chipColour={this.handleChipColour.bind(this)}
-            loadOptions={this.handleLoadOptions}
+            loadOptions={this.props.onSearchTickers}
             onChange={this.handleChange}
-            value={this.state.tickers}
+            value={this.props.tickers}
             label="Stocks"
           />
         </div>
-        <div style={{ minWidth: 250, paddingLeft: 10, flexGrow: 0 }}>
+        <div className={classes.dateRangeSelector}>
           <DateRangeSelector
             startDate={this.props.startDate}
             endDate={this.props.endDate}
@@ -88,7 +51,4 @@ class StockPicker extends Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(StockPicker);
+export default withStyles(styles, { withTheme: true })(StockPicker);
