@@ -52,7 +52,7 @@ class StockReturnsContainer extends Component {
   }
 
   componentDidMount() {
-    this.refreshReturnsTimeSeries();
+    this.refreshReturnsTimeSeries(true);
     this.refreshReturnsMetrics();
   }
 

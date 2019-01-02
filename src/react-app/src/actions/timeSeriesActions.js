@@ -6,8 +6,12 @@ export const ADD_SERIES = "ADD_SERIES";
 export const UPDATE_SERIES = "UPDATE_SERIES";
 export const REMOVE_SERIES = "REMOVE_SERIES";
 
-export const fetchSeriesBegin = type => ({
-  type: `${FETCH_SERIES_BEGIN}_${type}`
+export const fetchSeriesBegin = (type, startDate, endDate) => ({
+  type: `${FETCH_SERIES_BEGIN}_${type}`,
+  payload: {
+    startDate: startDate,
+    endDate: endDate
+  }
 });
 
 export const fetchSeriesSuccess = type => ({
@@ -42,19 +46,31 @@ export const fetchSeries = (
   forceReload
 ) => {
   return (dispatch, getState) => {
-    const { series } = getState()[type];
+    const state = getState()[type];
 
     let symbolsToLoad = symbols;
     let symbolsToRemove = [];
 
-    if (!forceReload && series.length > 0) {
-      const currentSymbols = series.map(item => item.name);
+    if (state.series.length > 0) {
+      const currentSymbols = state.series.map(item => item.name);
       symbolsToLoad = symbols.filter(s => currentSymbols.indexOf(s) === -1);
       symbolsToRemove = currentSymbols.filter(s => symbols.indexOf(s) === -1);
+
+      if (forceReload) {
+        // only force the reload if our state dates dont match our app dates
+        const { app } = getState();
+        if (
+          app.startDate !== state.startDate ||
+          app.endDate !== state.endDate
+        ) {
+          symbolsToLoad = symbols;
+          symbolsToRemove = [];
+        }
+      }
     }
 
     if (symbolsToLoad.length > 0) {
-      dispatch(fetchSeriesBegin(type));
+      dispatch(fetchSeriesBegin(type, startDate, endDate));
     }
 
     const tasks = symbolsToLoad.map(symbol => {

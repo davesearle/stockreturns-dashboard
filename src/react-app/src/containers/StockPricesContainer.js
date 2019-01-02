@@ -43,6 +43,7 @@ class StockPricesContainer extends Component {
   }
 
   refreshPricesMetrics() {
+    if (this.props.selectedDate === null) return;
     this.props.onGetPricesMetrics(this.props.symbols, this.props.selectedDate);
   }
   refreshChartData() {
@@ -54,7 +55,7 @@ class StockPricesContainer extends Component {
   }
 
   componentDidMount() {
-    this.refreshPricesTimeSeries();
+    this.refreshPricesTimeSeries(true);
     this.refreshPricesMetrics();
   }
 

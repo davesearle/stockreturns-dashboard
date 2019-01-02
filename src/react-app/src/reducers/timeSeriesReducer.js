@@ -10,6 +10,8 @@ import {
 export default function createTimeSeriesReducer(name) {
   const initialState = {
     series: [],
+    startDate: null,
+    endDate: null,
     loading: false,
     error: null
   };
@@ -20,7 +22,9 @@ export default function createTimeSeriesReducer(name) {
         return {
           ...state,
           loading: true,
-          error: null
+          error: null,
+          startDate: action.payload.startDate,
+          endDate: action.payload.endDate
         };
       case `${FETCH_SERIES_SUCCESS}_${name}`:
         return {
