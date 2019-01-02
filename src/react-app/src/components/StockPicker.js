@@ -16,8 +16,8 @@ class StockPicker extends Component {
   };
 
   handleChipColour(label) {
-    var symbol = label.match(/\((.*)\)/).pop();
-    var colourCode = this.props.colours.filter(
+    let symbol = label.match(/\((.*)\)/).pop();
+    let colourCode = this.props.colours.filter(
       colour => colour.symbol === symbol
     )[0].colour;
     return colourCode;

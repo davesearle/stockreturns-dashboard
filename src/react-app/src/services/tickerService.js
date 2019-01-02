@@ -5,7 +5,7 @@ const searchTickers = search => {
     axios
       .get("/api/tickers/search/" + (search ? search : ""))
       .then(response => {
-        var tickers = response.data.map(ticker => ({
+        const tickers = response.data.map(ticker => ({
           value: ticker.symbol,
           label: ticker.name + " (" + ticker.symbol + ")"
         }));
@@ -21,7 +21,7 @@ const searchTickers = search => {
 };
 
 const getTickers = async symbols => {
-  var tasks = symbols.map(symbol => {
+  const tasks = symbols.map(symbol => {
     return getTicker(symbol).then(ticker => {
       return {
         value: ticker.value,
@@ -37,7 +37,7 @@ const getTicker = symbol => {
     axios
       .get("/api/tickers/" + symbol)
       .then(response => {
-        var ticker = response.data.map(ticker => ({
+        const ticker = response.data.map(ticker => ({
           value: ticker.symbol,
           label: ticker.name + " (" + ticker.symbol + ")"
         }))[0];

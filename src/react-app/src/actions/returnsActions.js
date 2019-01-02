@@ -18,8 +18,12 @@ export const fetchReturnsTimeSeries = fetchSeries.bind(
   }
 );
 
-export const fetchReturnsMetricsBegin = () => ({
-  type: FETCH_RETURNS_METRICS_BEGIN
+export const fetchReturnsMetricsBegin = (startDate, endDate) => ({
+  type: FETCH_RETURNS_METRICS_BEGIN,
+  payload: {
+    startDate: startDate,
+    endDate: endDate
+  }
 });
 export const fetchReturnsMetricsSuccess = () => ({
   type: FETCH_RETURNS_METRICS_SUCCESS
@@ -32,14 +36,17 @@ export const updateReturnsMetrics = metrics => ({
   payload: { metrics }
 });
 export const fetchReturnsMetrics = (symbols, startDate, endDate) => {
-  return dispatch => {
-    dispatch(fetchReturnsMetricsBegin());
+  return (dispatch, getState) => {
+    const state = getState().returns;
+    if (state.startDate === startDate && state.endDate === endDate) return;
+
+    dispatch(fetchReturnsMetricsBegin(startDate, endDate));
 
     const tasks = symbols.map(symbol => {
       return axios
         .get("/api/returns/metrics/" + symbol + "/" + startDate + "/" + endDate)
         .then(response => {
-          var metrics = response.data[0];
+          let metrics = response.data[0];
           dispatch(updateReturnsMetrics(metrics));
         })
         .catch(error => {

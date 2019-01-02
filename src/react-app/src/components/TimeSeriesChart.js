@@ -107,7 +107,7 @@ class TimeSeriesChart extends Component {
     }
   }
   removeSeries(name) {
-    let chart = this.refs.chart.getChart();
+    const chart = this.refs.chart.getChart();
     chart.series.forEach(item => {
       if (item.name === name) item.remove();
     });
@@ -116,9 +116,9 @@ class TimeSeriesChart extends Component {
   renderSeries() {
     if (this.props.series == null) return;
 
-    let chart = this.refs.chart.getChart();
-    let stateSeries = this.props.series.map(item => item.name);
-    let chartSeries = chart.series.map(item => item.name);
+    const chart = this.refs.chart.getChart();
+    const stateSeries = this.props.series.map(item => item.name);
+    const chartSeries = chart.series.map(item => item.name);
 
     // for each series in the state, make sure it's been added to the chart
     this.props.series.forEach(stateSeriesItem => {
@@ -133,7 +133,7 @@ class TimeSeriesChart extends Component {
 
     // update existing series in case they have changed
     this.props.series.forEach(stateSeriesItem => {
-      var chartSeriesItem = chart.series.find(
+      const chartSeriesItem = chart.series.find(
         i => i.name === stateSeriesItem.name
       );
       if (chartSeriesItem !== undefined) {
@@ -148,15 +148,15 @@ class TimeSeriesChart extends Component {
       this.props.selectedDate !== null &&
       this.props.selectedDate !== undefined
     ) {
-      let x = Date.parse(this.props.selectedDate);
+      const x = Date.parse(this.props.selectedDate);
       this.addPlotLine({ x: x }, this.props.selectedDate);
     }
 
     chart.reflow();
   }
   findNearestPoint(x, points) {
-    var closestPoint;
-    var distance = Number.MAX_VALUE;
+    let closestPoint;
+    let distance = Number.MAX_VALUE;
 
     points.forEach(point => {
       var dist = Math.abs(x - point.x);
@@ -191,12 +191,11 @@ class TimeSeriesChart extends Component {
   handleClick(x) {
     const chart = this.refs.chart.getChart();
     const points = chart.series[0].data;
-
-    var closestPoint = this.findNearestPoint(x, points);
+    const closestPoint = this.findNearestPoint(x, points);
 
     if (closestPoint == null) return;
 
-    var date = Highcharts.dateFormat("%Y-%m-%d", closestPoint.x);
+    const date = Highcharts.dateFormat("%Y-%m-%d", closestPoint.x);
 
     this.addPlotLine(closestPoint, date);
 
@@ -206,10 +205,10 @@ class TimeSeriesChart extends Component {
     const chart = this.refs.chart.getChart();
     const points = chart.series[0].data;
 
-    var closestPointMinX = this.findNearestPoint(minX, points);
-    var closestPointMaxX = this.findNearestPoint(maxX, points);
-    var startDate = Highcharts.dateFormat("%Y-%m-%d", closestPointMinX.x);
-    var endDate = Highcharts.dateFormat("%Y-%m-%d", closestPointMaxX.x);
+    const closestPointMinX = this.findNearestPoint(minX, points);
+    const closestPointMaxX = this.findNearestPoint(maxX, points);
+    const startDate = Highcharts.dateFormat("%Y-%m-%d", closestPointMinX.x);
+    const endDate = Highcharts.dateFormat("%Y-%m-%d", closestPointMaxX.x);
 
     if (this.props.onDateRangeSelected)
       this.props.onDateRangeSelected(startDate, endDate);

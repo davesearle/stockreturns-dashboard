@@ -16,8 +16,11 @@ export const fetchPricesTimeSeries = fetchSeries.bind(
   }
 );
 
-export const fetchPricesMetricsBegin = () => ({
-  type: FETCH_PRICES_METRICS_BEGIN
+export const fetchPricesMetricsBegin = selectedDate => ({
+  type: FETCH_PRICES_METRICS_BEGIN,
+  payload: {
+    selectedDate: selectedDate
+  }
 });
 export const fetchPricesMetricsSuccess = () => ({
   type: FETCH_PRICES_METRICS_SUCCESS
@@ -30,14 +33,17 @@ export const updatePricesMetrics = metrics => ({
   payload: { metrics }
 });
 export const fetchPricesMetrics = (symbols, selectedDate) => {
-  return dispatch => {
-    dispatch(fetchPricesMetricsBegin());
+  return (dispatch, getState) => {
+    const state = getState().prices;
+    if (state.selectedDate === selectedDate) return;
+
+    dispatch(fetchPricesMetricsBegin(selectedDate));
 
     const tasks = symbols.map(symbol => {
       return axios
         .get("/api/prices/metrics/" + symbol + "/" + selectedDate)
         .then(response => {
-          var metrics = response.data[0];
+          let metrics = response.data[0];
           dispatch(updatePricesMetrics(metrics));
         })
         .catch(error => {

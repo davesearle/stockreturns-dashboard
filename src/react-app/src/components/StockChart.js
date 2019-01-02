@@ -50,7 +50,7 @@ class StockChart extends Component {
   }
 
   render() {
-    var series = this.state.series;
+    const series = this.state.series;
     return (
       <TimeSeriesChart
         onRef={ref => (this.chart = ref)}

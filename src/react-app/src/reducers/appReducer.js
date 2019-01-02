@@ -47,7 +47,7 @@ export default function createAppReducer() {
 }
 
 const assignColors = (currentMap, symbols) => {
-  var colourMap = [];
+  let colourMap = [];
 
   currentMap.forEach(item => {
     if (symbols.indexOf(item.symbol) !== -1) colourMap.push(item);
@@ -57,8 +57,8 @@ const assignColors = (currentMap, symbols) => {
 
   symbols.forEach(symbol => {
     if (currentSymbolsInMap.indexOf(symbol) === -1) {
-      var currentColoursInUse = colourMap.map(item => item.colour);
-      var colour = seriesColours.filter(
+      const currentColoursInUse = colourMap.map(item => item.colour);
+      const colour = seriesColours.filter(
         colour => currentColoursInUse.indexOf(colour) === -1
       )[0];
 

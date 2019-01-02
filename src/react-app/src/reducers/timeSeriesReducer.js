@@ -39,7 +39,7 @@ export default function createTimeSeriesReducer(name) {
           series: []
         };
       case `${ADD_SERIES}_${name}`:
-        let newSeries = {
+        const newSeries = {
           name: action.payload.series.name,
           data: action.payload.series.data
         };
@@ -49,7 +49,7 @@ export default function createTimeSeriesReducer(name) {
           series: [...state.series, newSeries]
         };
       case `${UPDATE_SERIES}_${name}`:
-        let updatedSeries = {
+        const updatedSeries = {
           name: action.payload.series.name,
           data: action.payload.series.data
         };
