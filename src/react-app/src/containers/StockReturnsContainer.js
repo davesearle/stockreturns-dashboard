@@ -43,6 +43,7 @@ class StockReturnsContainer extends Component {
   }
 
   refreshReturnsMetrics() {
+    if (this.props.selectedDate === null) return;
     this.props.onGetReturnsMetrics(
       this.props.symbols,
       this.props.startDate,

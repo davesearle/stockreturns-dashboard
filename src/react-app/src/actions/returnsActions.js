@@ -9,7 +9,9 @@ export const fetchReturnsTimeSeries = fetchSeries.bind(
   null,
   "returnsTimeSeries",
   (symbol, startDate, endDate) => {
-    return "/returns/timeseries/" + symbol + "/" + startDate + "/" + endDate;
+    return (
+      "/api/returns/timeseries/" + symbol + "/" + startDate + "/" + endDate
+    );
   },
   response => {
     return response.data.map(item => [item.date, item.return]);
@@ -35,7 +37,7 @@ export const fetchReturnsMetrics = (symbols, startDate, endDate) => {
 
     const tasks = symbols.map(symbol => {
       return axios
-        .get("/returns/metrics/" + symbol + "/" + startDate + "/" + endDate)
+        .get("/api/returns/metrics/" + symbol + "/" + startDate + "/" + endDate)
         .then(response => {
           var metrics = response.data[0];
           dispatch(updateReturnsMetrics(metrics));

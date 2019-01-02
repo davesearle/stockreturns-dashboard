@@ -6,7 +6,7 @@ import { createLoadingSelector } from "../helpers/loadingSelector";
 
 const styles = {
   placeholder: {
-    height: 5,
+    height: 4,
     backgroundColor: "rgba(49, 56, 71, 0.8)"
   }
 };

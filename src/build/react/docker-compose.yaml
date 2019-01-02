@@ -1,0 +1,23 @@
+version: "3"
+services:
+  backend:
+    build:
+      context: ../../python/
+      dockerfile: Dockerfile-prod
+    networks:
+      - web_nw
+    expose:
+      - "5000"
+  frontend:
+    build:
+      context: ../../react-app/
+      dockerfile: Dockerfile-prod
+    networks:
+      - web_nw
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+networks:
+  web_nw:
+    driver: bridge

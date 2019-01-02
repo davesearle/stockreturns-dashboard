@@ -9,7 +9,7 @@ export const fetchPricesTimeSeries = fetchSeries.bind(
   null,
   "pricesTimeSeries",
   (symbol, startDate, endDate) => {
-    return "/prices/timeseries/" + symbol + "/" + startDate + "/" + endDate;
+    return "/api/prices/timeseries/" + symbol + "/" + startDate + "/" + endDate;
   },
   response => {
     return response.data.map(item => [item.date, item.close]);
@@ -35,7 +35,7 @@ export const fetchPricesMetrics = (symbols, selectedDate) => {
 
     const tasks = symbols.map(symbol => {
       return axios
-        .get("/prices/metrics/" + symbol + "/" + selectedDate)
+        .get("/api/prices/metrics/" + symbol + "/" + selectedDate)
         .then(response => {
           var metrics = response.data[0];
           dispatch(updatePricesMetrics(metrics));

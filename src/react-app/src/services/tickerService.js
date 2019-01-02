@@ -3,7 +3,7 @@ import axios from "axios";
 const searchTickers = search => {
   return new Promise((resolve, reject) => {
     axios
-      .get("/tickers/search/" + (search ? search : ""))
+      .get("/api/tickers/search/" + (search ? search : ""))
       .then(response => {
         var tickers = response.data.map(ticker => ({
           value: ticker.symbol,
@@ -35,7 +35,7 @@ const getTickers = async symbols => {
 const getTicker = symbol => {
   return new Promise((resolve, reject) => {
     axios
-      .get("/tickers/" + symbol)
+      .get("/api/tickers/" + symbol)
       .then(response => {
         var ticker = response.data.map(ticker => ({
           value: ticker.symbol,
