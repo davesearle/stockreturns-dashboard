@@ -30,6 +30,10 @@ function ccyFormat(num) {
   return `${num.toFixed(2)}`;
 }
 class StockPricesMetrics extends Component {
+  getColour(symbol) {
+    var colourMap = this.props.colours.find(c => c.symbol === symbol);
+    if (colourMap !== undefined) return colourMap.colour;
+  }
   render() {
     const { classes } = this.props;
     const metrics = this.props.metrics;
@@ -47,7 +51,12 @@ class StockPricesMetrics extends Component {
           .sort((a, b) => ("" + a.name).localeCompare(b.name))
           .map((item, index) => (
             <div key={item.name}>
-              <Card className={classes.card}>
+              <Card
+                className={classes.card}
+                style={{
+                  borderLeft: "4px solid " + this.getColour(item.symbol)
+                }}
+              >
                 <CardContent>
                   <Typography variant="subtitle2" className={classes.title}>
                     {item.name}

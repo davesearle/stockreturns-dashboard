@@ -66,6 +66,7 @@ class StockPrices extends Component {
             startDate={this.props.startDate}
             date={this.props.selectedDate}
             metrics={this.props.metrics}
+            colours={this.props.colours}
           />
         </Paper>
       </div>
