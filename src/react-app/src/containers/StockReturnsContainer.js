@@ -67,6 +67,7 @@ class StockReturnsContainer extends Component {
       this.props.endDate !== prevProps.endDate
     ) {
       this.refreshReturnsTimeSeries(true);
+      this.refreshReturnsMetrics();
     }
     if (this.props.selectedDate !== prevProps.selectedDate) {
       this.refreshReturnsMetrics();

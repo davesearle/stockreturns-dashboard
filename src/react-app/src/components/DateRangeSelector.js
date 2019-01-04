@@ -3,6 +3,7 @@ import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import IconButton from "@material-ui/core/IconButton";
 import SettingsBackupRestore from "@material-ui/icons/SettingsBackupRestore";
 import { DateRangePicker } from "react-date-range";
+import enGb from "react-date-range/dist/locale/en-GB";
 import Popover from "@material-ui/core/Popover";
 import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
@@ -103,6 +104,7 @@ class DateRangeSelector extends Component {
               <DateRangePicker
                 ranges={[selectionRange]}
                 onChange={this.handleSelect.bind(this)}
+                locale={enGb}
               />
             </Paper>
           </ClickAwayListener>

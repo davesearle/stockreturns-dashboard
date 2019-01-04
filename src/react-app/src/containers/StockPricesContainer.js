@@ -68,6 +68,7 @@ class StockPricesContainer extends Component {
       this.props.endDate !== prevProps.endDate
     ) {
       this.refreshPricesTimeSeries(true);
+      this.refreshPricesMetrics();
     }
     if (this.props.selectedDate !== prevProps.selectedDate) {
       this.refreshPricesMetrics();
