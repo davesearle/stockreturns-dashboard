@@ -31,6 +31,7 @@
         color="blue-grey"
         class="white--text"
         close
+        small
         @input="remove(item)"
       >
         <span v-text="item.name"></span>
@@ -60,7 +61,7 @@ export default {
   }),
   watch: {
     search(val) {
-      val && val !== this.model && this.querySelections(val);
+      val && val !== this.select && this.querySelections(val);
     }
   },
   methods: {
@@ -77,8 +78,29 @@ export default {
         .finally(() => (this.isLoading = false));
     },
     remove(item) {
-      const index = this.model.indexOf(item.symbol);
-      if (index >= 0) this.model.splice(index, 1);
+      const index = this.select.indexOf(item.symbol);
+      if (index >= 0) this.select.splice(index, 1);
+    },
+    filter(item, queryText, itemText) {
+      const hasValue = val => (val != null ? val : "");
+
+      const text = hasValue(itemText);
+      const value = hasValue(item.symbol);
+      const query = hasValue(queryText);
+
+      const textContainsQuery =
+        text
+          .toString()
+          .toLowerCase()
+          .indexOf(query.toString().toLowerCase()) > -1;
+
+      const valueContainsQuery =
+        value
+          .toString()
+          .toLowerCase()
+          .indexOf(query.toString().toLowerCase()) > -1;
+
+      return textContainsQuery || valueContainsQuery;
     }
   }
 };

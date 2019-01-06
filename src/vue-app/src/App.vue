@@ -2,7 +2,7 @@
   <v-app>
     <v-toolbar absolute color="primary" dark app clipped-left></v-toolbar>
     <v-card color="white" class="stock-picker" app clipped-left>
-      <v-container fluid>
+      <v-container fluid class="pa-3">
         <StockPicker/>
       </v-container>
     </v-card>
