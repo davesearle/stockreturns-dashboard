@@ -4,7 +4,7 @@ chardet==3.0.4
 Click==7.0
 colorama==0.4.1
 Flask==1.0.2
-Flask-Cors==3.0.7
+Flask-Cors==3.0.9
 Flask-Script==0.6.7
 idna==2.8
 iexfinance==0.3.5
